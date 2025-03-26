@@ -20,7 +20,7 @@ const createNewUser = async () => {
     });
   }
 
-  redirect("/journal");
+  redirect("/chat");
 };
 
 const NewUser = async () => {
