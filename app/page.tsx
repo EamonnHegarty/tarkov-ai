@@ -1,10 +1,10 @@
-// import { auth } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 
 export default async function Home() {
-  // const { userId } = await auth();
+  const { userId } = await auth();
 
-  // const href = userId ? "/chat-bot" : "/new-user";
+  const href = userId ? "/chat" : "/new-user";
 
   return (
     <div className="flex h-screen w-screen items-center justify-center   bg-tarkov  bg-mid text-text">
@@ -16,7 +16,7 @@ export default async function Home() {
           maybe—just maybe—less dying.
         </p>
         <div>
-          <Link href={"/"}>
+          <Link href={href}>
             <button className="cursor-pointer rounded-lg bg-tarkov-secondary px-6 py-3 text-xl text-black hover:bg-tarkov-secondary/80">
               Get started
             </button>
