@@ -17,7 +17,7 @@ export default async function Home() {
         </p>
         <div>
           <Link href={"/"}>
-            <button className="cursor-pointer rounded-lg bg-tarkov-secondary px-6 py-3 text-xl text-black hover:bg-violet-600 ">
+            <button className="cursor-pointer rounded-lg bg-tarkov-secondary px-6 py-3 text-xl text-black hover:bg-tarkov-secondary/80">
               Get started
             </button>
           </Link>
