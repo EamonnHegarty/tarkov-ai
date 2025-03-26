@@ -10,6 +10,11 @@
   --color-tarkov-secondary: #cfa850;
 }
 
+/*
+TODO
+Consider using Shadcn Theme and customising it to a tarkov theme
+*/
+
 /* body {
   background: var(--background);
   color: var(--foreground);
