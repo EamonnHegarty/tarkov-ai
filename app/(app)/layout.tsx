@@ -1,19 +1,9 @@
 import { UserButton } from "@clerk/nextjs";
 import React from "react";
 import Link from "next/link";
+import { LINKS } from "@/utils/links";
 
-interface ProtectedAppLayout {
-  children: React.ReactNode;
-}
-
-const LINKS = [
-  { title: "Home", href: "/home" },
-  { title: "AI Chat", href: "/chat" },
-  { title: "Kappa Grinder", href: "/kappa" },
-  { title: "Analytics", href: "/dashboard" },
-];
-
-const ProtectedAppLayout: React.FC<ProtectedAppLayout> = ({ children }) => {
+const ProtectedAppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex min-h-screen flex-col bg-tarkov text-text">
       <header className="h-16 border-b border-black/10 bg-tarkov px-10">
