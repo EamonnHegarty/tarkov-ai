@@ -8,9 +8,13 @@ const ProtectedAppLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex h-screen w-screen flex-col overflow-x-hidden bg-tarkov  px-10 pt-2">
       <header className="h-16 border-b border-black/10 bg-tarkov ">
         <div className="flex h-full items-center justify-between">
-          <nav className="flex gap-12 text-sm font-medium hover:text-amber-300">
+          <nav className="flex gap-12 text-sm font-medium ">
             {LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="text-3xl">
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-3xl hover:text-amber-300"
+              >
                 {link.title}
               </Link>
             ))}
