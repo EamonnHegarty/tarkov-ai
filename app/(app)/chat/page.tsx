@@ -7,7 +7,6 @@ import { setChats } from "@/lib/features/chat/chatSlice";
 
 export default function ChatPage() {
   const dispatch = useAppDispatch();
-
   const { data, error, isLoading } = useGetChatsQuery();
 
   useEffect(() => {
@@ -20,12 +19,13 @@ export default function ChatPage() {
   if (error) return <p>Error loading chats</p>;
 
   return (
-    <div className="p-4 space-y-2">
-      {data?.map((chat) => (
-        <div key={chat.id} className="border p-2 rounded">
-          <h3>{chat.title}</h3>
-        </div>
-      ))}
+    <div className="h-[90%] w-full grid grid-cols-4 gap-10 mt-5 ">
+      <div className="col-span-1 border rounded-lg h-full p-6 ">
+        <h1>This will be the chat list users click to open previous chats</h1>
+      </div>
+      <div className="col-span-3 border h-full rounded-lg p-6">
+        <h1>This will be the chat window</h1>
+      </div>
     </div>
   );
 }
