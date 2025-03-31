@@ -4,8 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { setRefreshChats } from "@/lib/features/chat/chatSlice";
+import { useAppDispatch } from "@/lib/hooks";
 
 export default function NewChatPage() {
+  const dispatch = useAppDispatch();
+
   const [input, setInput] = useState("");
   const router = useRouter();
 
@@ -24,6 +28,8 @@ export default function NewChatPage() {
         throw new Error("Failed to create chat");
       }
       const newChat = await res.json();
+
+      dispatch(setRefreshChats(true));
 
       router.push(`/chat/${newChat.id}`);
     } catch (error) {

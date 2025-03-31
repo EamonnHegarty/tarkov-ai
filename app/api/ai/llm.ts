@@ -17,7 +17,7 @@ export const runLLM = async ({
         {
           role: "user",
 
-          content: `Generate a concise 3-5 word summary for the following message (do not include quotes): ${userMessage}`,
+          content: `Generate a concise 3-5 word summary for the following message (do not include quotes or punctuation): ${userMessage}`,
         },
       ],
     });

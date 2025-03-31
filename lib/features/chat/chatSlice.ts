@@ -7,10 +7,12 @@ type Chat = {
 
 type ChatState = {
   chats: Chat[];
+  refreshChats: boolean;
 };
 
 const initialState: ChatState = {
   chats: [],
+  refreshChats: false,
 };
 
 export const chatSlice = createSlice({
@@ -23,9 +25,12 @@ export const chatSlice = createSlice({
     clearMessages: (state) => {
       state.chats = [];
     },
+    setRefreshChats: (state, action: PayloadAction<boolean>) => {
+      state.refreshChats = action.payload;
+    },
   },
 });
 
-export const { setChats, clearMessages } = chatSlice.actions;
+export const { setChats, clearMessages, setRefreshChats } = chatSlice.actions;
 
 export default chatSlice.reducer;

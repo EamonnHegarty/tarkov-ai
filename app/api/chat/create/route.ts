@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { getUserByClerkID } from "@/utils/auth";
 import { prisma } from "@/utils/db";
 import { runLLM } from "../../ai/llm";
-// Expect a JSON body with a userMessage property
+import { revalidatePath } from "next/cache";
+
 export async function POST(request: Request) {
   try {
     const { userMessage } = await request.json();
@@ -36,6 +37,8 @@ export async function POST(request: Request) {
         messages: true,
       },
     });
+
+    revalidatePath(`/chat/${newChat.id}`);
 
     return new NextResponse(JSON.stringify(newChat), { status: 201 });
   } catch (error) {

@@ -1,13 +1,21 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useAppDispatch } from "@/lib/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { useGetChatsQuery } from "@/lib/services/chatApi";
-import { setChats } from "@/lib/features/chat/chatSlice";
+import { setChats, setRefreshChats } from "@/lib/features/chat/chatSlice";
 
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
-  const { data, error, isLoading } = useGetChatsQuery();
+  const { data, error, isLoading, refetch } = useGetChatsQuery();
+  const refreshChats = useAppSelector((state) => state.chat.refreshChats);
+
+  useEffect(() => {
+    if (refreshChats) {
+      refetch();
+      dispatch(setRefreshChats(false));
+    }
+  }, [refreshChats]);
 
   useEffect(() => {
     if (data) {
