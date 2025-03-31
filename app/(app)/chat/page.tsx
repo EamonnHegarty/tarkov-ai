@@ -1,28 +1,34 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function ChatPage() {
-  const [messages, setMessages] = useState<string[]>([]);
+export default function NewChatPage() {
   const [input, setInput] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    setMessages((prev) => [...prev, input]);
+    try {
+      const res = await fetch("/api/chat/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userMessage: input }),
+      });
 
-    // Simulate a bot response
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        `You asked: "${input}". (Placeholder response)`,
-      ]);
-    }, 600);
+      if (!res.ok) {
+        throw new Error("Failed to create chat");
+      }
+      const newChat = await res.json();
 
-    setInput("");
+      router.push(`/chat/${newChat.id}`);
+    } catch (error) {
+      console.error("Error creating chat:", error);
+    }
   };
 
   return (
@@ -30,18 +36,9 @@ export default function ChatPage() {
       <header className="bg-tarkov p-4 text-center">
         <h1 className="text-3xl font-bold">Escape from Tarkov Helper</h1>
       </header>
-
-      <main className="flex-1 min-h-0 p-4 overflow-y-auto">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className="mb-2 p-3 rounded bg-ai-chat-message-background text-md"
-          >
-            {msg}
-          </div>
-        ))}
+      <main className="flex-1 min-h-0 p-4 flex items-center justify-center">
+        <p>Start your conversation by entering a message:</p>
       </main>
-
       <footer className="p-4 border-t border-tarkov-border">
         <form onSubmit={handleSubmit} className="flex space-x-2">
           <Input
