@@ -6,35 +6,27 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { setRefreshChats } from "@/lib/features/chat/chatSlice";
 import { useAppDispatch } from "@/lib/hooks";
+import { useCreateChatMutation } from "@/lib/services/chatApi";
 
 export default function NewChatPage() {
   const dispatch = useAppDispatch();
-
-  const [input, setInput] = useState("");
   const router = useRouter();
+  const [input, setInput] = useState("");
+  const [createChat] = useCreateChatMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    try {
-      const res = await fetch("/api/chat/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userMessage: input }),
+    createChat({ userMessage: input })
+      .unwrap()
+      .then((response) => {
+        dispatch(setRefreshChats(true));
+        router.push(`/chat/${response.id}`);
+      })
+      .catch((e) => {
+        console.error("error creating chat:", e);
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to create chat");
-      }
-      const newChat = await res.json();
-
-      dispatch(setRefreshChats(true));
-
-      router.push(`/chat/${newChat.id}`);
-    } catch (error) {
-      console.error("Error creating chat:", error);
-    }
   };
 
   return (

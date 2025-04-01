@@ -1,4 +1,3 @@
-// lib/services/chatApi.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 type Chat = {
@@ -8,6 +7,7 @@ type Chat = {
 
 export const chatApi = createApi({
   reducerPath: "chatApi",
+  //  i should probably update the base to include /chat, waiting to see how this plays out
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
   endpoints: (builder) => ({
     getChats: builder.query<Chat[], void>({
@@ -16,8 +16,14 @@ export const chatApi = createApi({
         method: "POST",
       }),
     }),
+    createChat: builder.mutation<Chat, { userMessage: string }>({
+      query: (payload) => ({
+        url: "/chat/create",
+        method: "POST",
+        body: payload,
+      }),
+    }),
   }),
 });
 
-// Export hooks for usage in functional components
-export const { useGetChatsQuery } = chatApi;
+export const { useGetChatsQuery, useCreateChatMutation } = chatApi;
