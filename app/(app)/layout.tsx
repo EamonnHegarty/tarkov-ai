@@ -7,7 +7,7 @@ import { LINKS } from "@/utils/links";
 
 const ProtectedAppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex h-screen w-screen flex-col overflow-x-hidden bg-tarkov px-10 pt-2">
+    <div className="flex h-screen w-screen flex-col overflow-x-hidden bg-tarkov px-10 pt-2 text-text/90">
       <header className="h-16 border-b border-black/10 bg-tarkov">
         <div className="flex h-full items-center justify-between">
           <nav className="flex gap-12 text-sm font-medium">
@@ -24,7 +24,7 @@ const ProtectedAppLayout = ({ children }: { children: React.ReactNode }) => {
           <UserButton />
         </div>
       </header>
-      <main className="flex-1 min-h-0">{children}</main>
+      <main className="flex-1 min-h-0 px-6 py-4">{children}</main>
     </div>
   );
 };

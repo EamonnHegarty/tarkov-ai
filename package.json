@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "seed": "ts-node ./app/api/seed/chatSeed.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "start-llm": "npx tsx ./app/api/ai/index.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.4",
@@ -18,16 +18,21 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.7",
+    "lowdb": "^7.0.1",
     "lucide-react": "^0.484.0",
     "next": "^15.2.1",
     "openai": "^4.70.3",
+    "ora": "^8.1.1",
+    "path": "^0.12.7",
     "prisma": "^6.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
     "tailwind-merge": "^3.0.2",
     "ts-node": "^10.9.2",
-    "tw-animate-css": "^1.2.4"
+    "tsx": "^4.19.3",
+    "tw-animate-css": "^1.2.4",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

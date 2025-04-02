@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getUserByClerkID } from "@/utils/auth";
 import { prisma } from "@/utils/db";
 import { runLLM } from "../../ai/llm";
-import { revalidatePath } from "next/cache";
 
 export async function POST(request: Request) {
   try {
@@ -19,12 +18,20 @@ export async function POST(request: Request) {
         status: 401,
       });
     }
+    `Generate a concise 3-5 word summary for the following message (do not include quotes or punctuation): ${userMessage}`;
 
-    const aiSummary = await runLLM({ userMessage });
+    const aiSummary = await runLLM({
+      messages: [
+        {
+          role: "user",
+          content: `Generate a concise 3-5 word summary for the following message (do not include quotes or punctuation): ${userMessage}`,
+        },
+      ],
+    });
 
     const newChat = await prisma.chat.create({
       data: {
-        title: aiSummary,
+        title: aiSummary as string,
         userId: user.id,
         messages: {
           create: {
@@ -37,8 +44,6 @@ export async function POST(request: Request) {
         messages: true,
       },
     });
-
-    revalidatePath(`/chat/${newChat.id}`);
 
     return new NextResponse(JSON.stringify(newChat), { status: 201 });
   } catch (error) {

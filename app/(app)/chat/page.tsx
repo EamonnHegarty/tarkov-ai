@@ -30,7 +30,7 @@ export default function NewChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-background text-color-text">
+    <div className="flex flex-col h-full overflow-hidden bg-background ">
       <header className="bg-tarkov p-4 text-center">
         <h1 className="text-3xl font-bold">Escape from Tarkov Helper</h1>
       </header>
