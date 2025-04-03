@@ -13,7 +13,7 @@ export const chatApi = createApi({
     getChats: builder.query<Chat[], void>({
       query: () => ({
         url: "/chat",
-        method: "POST",
+        method: "GET",
       }),
     }),
     createChat: builder.mutation<Chat, { userMessage: string }>({

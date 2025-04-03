@@ -1,7 +1,7 @@
 import { getUserByClerkID } from "@/utils/auth";
 import { prisma } from "@/utils/db";
 
-export const POST = async () => {
+export const GET = async () => {
   const user = await getUserByClerkID();
 
   const chats = await prisma.chat.findMany({
