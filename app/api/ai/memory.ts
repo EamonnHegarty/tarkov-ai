@@ -6,6 +6,12 @@ import { JSONFilePreset } from "lowdb/node";
 import { v4 as uuidv4 } from "uuid";
 import { AIMessage } from "./types";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirnameLocal =
+  typeof __dirname !== "undefined"
+    ? __dirname
+    : path.dirname(fileURLToPath(import.meta.url));
 
 export type MessageWithMetadata = AIMessage & {
   id: string;
@@ -25,6 +31,7 @@ export const addMetadata = (message: AIMessage) => {
 };
 
 export const removeMetadata = (message: MessageWithMetadata) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id, createdAt, ...rest } = message;
   return rest;
 };
@@ -34,12 +41,10 @@ const defaultData: Data = {
 };
 
 export const getDb = async () => {
-  const dbPath = path.join(__dirname, "db.json");
+  const dbPath = path.join(__dirnameLocal, "db.json");
   const db = await JSONFilePreset<Data>(dbPath, defaultData);
-
   return db;
 };
-
 export const addMessages = async (messages: AIMessage[]) => {
   const db = await getDb();
   db.data.messages.push(...messages.map(addMetadata));
@@ -49,4 +54,17 @@ export const addMessages = async (messages: AIMessage[]) => {
 export const getMessages = async () => {
   const db = await getDb();
   return db.data.messages.map(removeMetadata);
+};
+
+export const saveToolResponse = async (
+  toolCallId: string,
+  toolResponse: string
+) => {
+  return addMessages([
+    {
+      role: "tool",
+      content: toolResponse,
+      tool_call_id: toolCallId,
+    },
+  ]);
 };
