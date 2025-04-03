@@ -18,7 +18,6 @@ export async function POST(request: Request) {
         status: 401,
       });
     }
-    `Generate a concise 3-5 word summary for the following message (do not include quotes or punctuation): ${userMessage}`;
 
     const aiSummary = await runLLM({
       messages: [
