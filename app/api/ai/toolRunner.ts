@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import type OpenAI from "openai";
-
-const getWeather = (input: any) => `its hot`;
+import {
+  generateImage,
+  generateImageToolDefinition,
+} from "./tools/generateImage";
+import { reddit, redditToolDefinition } from "./tools/reddit";
 
 export const runTool = async (
   toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
@@ -14,9 +15,13 @@ export const runTool = async (
   };
 
   switch (toolCall.function.name) {
-    case "get_weather":
-      return getWeather(input);
+    case generateImageToolDefinition.name:
+      return generateImage(input);
+
+    case redditToolDefinition.name:
+      return reddit(input);
+
     default:
-      throw new Error("Unknown tool");
+      return `Never run this tool: ${toolCall.function.name} again, or else!`;
   }
 };

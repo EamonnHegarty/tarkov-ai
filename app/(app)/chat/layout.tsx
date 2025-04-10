@@ -15,7 +15,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
       refetch();
       dispatch(setRefreshChats(false));
     }
-  }, [refreshChats]);
+  }, [dispatch, refetch, refreshChats]);
 
   useEffect(() => {
     if (data) {

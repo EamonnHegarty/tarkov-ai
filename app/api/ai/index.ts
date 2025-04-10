@@ -1,21 +1,13 @@
 import "dotenv/config";
 
 import { runAgent } from "./agent";
-import { z } from "zod";
+import { tools } from "./tools/tools";
 
 const userMessage = process.argv[2] || "hey";
 
-const getWeather = () => `its hot`;
-
-const weatherTool = {
-  name: "get_weather",
-  parameters: z.object({}),
-};
-
 async function main() {
   try {
-    const response = await runAgent({ userMessage, tools: [weatherTool] });
-    console.log(response);
+    await runAgent({ userMessage, tools });
   } catch (error) {
     console.error("Error running runLLM:", error);
   }
