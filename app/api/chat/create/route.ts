@@ -12,18 +12,26 @@ export async function POST(request: Request) {
     const aiSummaryResult = await runAgent({
       userMessage: `Generate a concise 3-5 word summary for the following message (do not include quotes or punctuation): ${userMessage}`,
     });
-
     const aiSummary = aiSummaryResult[aiSummaryResult.length - 1].content;
+
+    const aiResponseResult = await runAgent({ userMessage });
+    const aiResponse = aiResponseResult[aiResponseResult.length - 1].content;
 
     const newChat = await prisma.chat.create({
       data: {
         title: aiSummary as unknown as string,
         userId: user.id,
         messages: {
-          create: {
-            content: userMessage,
-            role: "user",
-          },
+          create: [
+            {
+              content: userMessage,
+              role: "user",
+            },
+            {
+              content: aiResponse,
+              role: "assistant",
+            },
+          ],
         },
       },
       include: {

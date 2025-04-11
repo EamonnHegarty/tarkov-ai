@@ -2,6 +2,7 @@
 import OpenAI from "openai";
 import { AIMessage } from "./types";
 import { zodFunction } from "openai/helpers/zod";
+import { tools as AppTools } from "./tools/tools";
 
 export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -14,7 +15,11 @@ export const runLLM = async ({
   messages: AIMessage[];
   tools?: any[];
 }) => {
-  const formattedTools = tools ? tools.map(zodFunction) : undefined;
+  const formattedTools = tools
+    ? tools.map(zodFunction)
+    : AppTools
+    ? AppTools.map(zodFunction)
+    : undefined;
 
   const payload: any = {
     model: "gpt-4o-mini",
