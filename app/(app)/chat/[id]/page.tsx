@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { useParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 
-// Define a type for a single message
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -14,17 +13,13 @@ interface Message {
 }
 
 const ChatConversationPage: React.FC = () => {
-  // Extract the chat id from the URL
   const { id: chatId } = useParams();
 
-  // State for storing messages and the input value
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
 
-  // Ref attached to a dummy div at the bottom of the messages list
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch messages when the chatId changes
   useEffect(() => {
     if (!chatId) return;
     fetch(`/api/chat/${chatId}/message`)
@@ -41,11 +36,21 @@ const ChatConversationPage: React.FC = () => {
     e.preventDefault();
     if (!input.trim()) return;
 
+    const newUserMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input.trim(),
+      createdAt: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, newUserMessage]);
+    setInput("");
+
     try {
       const res = await fetch(`/api/chat/${chatId}/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userMessage: input.trim() }),
+        body: JSON.stringify({ userMessage: newUserMessage.content }),
       });
 
       if (!res.ok) throw new Error("Error sending message");
@@ -55,15 +60,14 @@ const ChatConversationPage: React.FC = () => {
         assistantMessage: Message;
       };
 
-      setMessages((prev) => [...prev, data.userMessage, data.assistantMessage]);
-      setInput("");
+      setMessages((prev) => [...prev, data.assistantMessage]);
     } catch (e) {
       console.error(e);
     }
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden ">
+    <div className="flex flex-col h-full overflow-hidden">
       <header className="bg-tarkov p-4 text-center shadow-md">
         <h1 className="text-3xl font-bold">Escape from Tarkov Helper</h1>
       </header>
@@ -79,13 +83,11 @@ const ChatConversationPage: React.FC = () => {
                 }`}
               >
                 <div
-                  className={`relative rounded-lg px-4 py-2 max-w-[75%] md:max-w-md break-words shadow-sm
-                    ${
-                      isUser
-                        ? "bg-tarkov-secondary text-white rounded-bl-none"
-                        : "bg-background-2 text-white rounded-br-none"
-                    }
-                  `}
+                  className={`relative rounded-lg px-4 py-2 max-w-[75%] md:max-w-md break-words shadow-sm ${
+                    isUser
+                      ? "bg-tarkov-secondary text-white rounded-bl-none"
+                      : "bg-background-2 text-white rounded-br-none"
+                  }`}
                 >
                   {msg.content}
                 </div>
@@ -95,7 +97,7 @@ const ChatConversationPage: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
       </main>
-      <footer className="p-4 border-t border-tarkov-border ">
+      <footer className="p-4 border-t border-tarkov-border">
         <form onSubmit={handleSubmit} className="flex space-x-2">
           <Input
             value={input}
