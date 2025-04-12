@@ -18,7 +18,9 @@ export const POST = async (
       },
     });
 
-    const agentResponse = await runAgent({ userMessage });
+    const agentResponse = await runAgent({
+      userMessage: `Please format your response with markdown using headings bullet points, and paragraphs for clarity to this user message: ${userMessage}`,
+    });
     const assistantContent = agentResponse[agentResponse.length - 1].content;
 
     const assistantMsg = await prisma.message.create({

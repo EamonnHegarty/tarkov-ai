@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
+import Markdown from "react-markdown";
 
 interface Message {
   id: string;
@@ -83,13 +84,21 @@ const ChatConversationPage: React.FC = () => {
                 }`}
               >
                 <div
-                  className={`relative rounded-lg px-4 py-2 max-w-[75%] md:max-w-md break-words shadow-sm ${
+                  className={`relative rounded-lg px-4 py-2 max-w-[75%] md:max-w-lg break-words shadow-sm ${
                     isUser
                       ? "bg-tarkov-secondary text-white rounded-bl-none"
                       : "bg-background-2 text-white rounded-br-none"
                   }`}
                 >
-                  {msg.content}
+                  {isUser ? (
+                    <div className="prose prose-invert max-w-none text-white">
+                      {msg.content}
+                    </div>
+                  ) : (
+                    <div className="prose prose-invert max-w-none p-2">
+                      <Markdown>{msg.content}</Markdown>
+                    </div>
+                  )}
                 </div>
               </div>
             );
