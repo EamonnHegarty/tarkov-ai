@@ -13,7 +13,6 @@ export const runAgent = async ({
 }) => {
   await addMessages([{ role: "user", content: userMessage }]);
 
-  //in dev when testing with run-llm using loader
   const loader = showLoader("thinking ... 🤔");
 
   while (true) {
