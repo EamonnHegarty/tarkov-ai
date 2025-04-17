@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "start-llm": "npx tsx ./app/api/ai/index.ts"
+    "start-llm": "npx tsx ./app/api/ai/index.ts",
+    "fetch-reddit": "tsx scripts/fetchReddit.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.4",
