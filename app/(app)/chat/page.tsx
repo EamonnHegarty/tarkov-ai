@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { setRefreshChats } from "@/lib/features/chat/chatSlice";
-import { useAppDispatch } from "@/lib/hooks";
-import { useCreateChatMutation } from "@/lib/services/chatApi";
+import { setRefreshChats } from "@/lib/store/features/chat/chatSlice";
+import { useAppDispatch } from "@/lib/store/hooks";
+import { useCreateChatMutation } from "@/lib/store/services/chatApi";
 
 export default function NewChatPage() {
   const dispatch = useAppDispatch();

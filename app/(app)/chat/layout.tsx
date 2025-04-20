@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { useGetChatsQuery } from "@/lib/services/chatApi";
-import { setChats, setRefreshChats } from "@/lib/features/chat/chatSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { useGetChatsQuery } from "@/lib/store/services/chatApi";
+import { setChats, setRefreshChats } from "@/lib/store/features/chat/chatSlice";
 
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
