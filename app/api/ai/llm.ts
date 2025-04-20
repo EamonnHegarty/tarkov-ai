@@ -27,7 +27,6 @@ export const runLLM = async ({
     messages,
   };
 
-  // Only add tools-related properties if formattedTools exists
   if (formattedTools) {
     payload.tools = formattedTools;
     payload.tool_choice = "auto";
