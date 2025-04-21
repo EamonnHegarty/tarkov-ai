@@ -11,15 +11,13 @@ async function updateTarkovData() {
 
   await initPineconeIndex();
 
-  // !! broken - I think we need to enable this
-
-  // console.log("Deleting existing data from Pinecone index...");
-  // await deleteExistingData();
+  console.log("Deleting existing data from Pinecone index...");
+  await deleteExistingData();
 
   console.log("Fetching new content...");
 
   const newContent = await fetchTarkovContent({
-    pages: 1,
+    pages: 20,
     delayMs: 1500,
     sortBy: "hot",
     includeComments: false,
