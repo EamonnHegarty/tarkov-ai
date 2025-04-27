@@ -4,8 +4,12 @@ import React from "react";
 
 export const MessageSkeleton = ({ isUser = false }: { isUser?: boolean }) => {
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div className={`relative max-w-[75%] ${isUser ? "mr-2" : "ml-2"}`}>
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"} my-4`}>
+      <div
+        className={`relative max-w-[90%] sm:max-w-[75%] ${
+          isUser ? "mr-2" : "ml-2"
+        }`}
+      >
         <div
           className={`absolute top-0 ${
             isUser
@@ -53,8 +57,8 @@ export const ConversationSkeleton = () => {
       </header>
 
       <main className="flex-1 min-h-0 p-4 overflow-y-auto">
-        <div className="space-y-8">
-          <div className="text-center animate-pulse">
+        <div className="space-y-6">
+          <div className="text-center animate-pulse mt-4">
             <div className="inline-block h-4 bg-[#333] rounded w-32 mx-auto"></div>
           </div>
 

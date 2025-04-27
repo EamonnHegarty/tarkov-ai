@@ -62,7 +62,10 @@ const ChatConversationPage: React.FC = () => {
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        200
+      )}px`;
     }
   }, [input]);
 
@@ -137,9 +140,9 @@ const ChatConversationPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="flex flex-col h-full items-center justify-center p-8">
+      <div className="flex flex-col h-full items-center justify-center p-4 md:p-8">
         <div className="bg-ai-chat-message-background p-6 rounded-lg border border-[#444] max-w-md w-full text-center">
-          <div className="text-red-400 mb-4">
+          <div className="text-red-400 mb-4 flex justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="40"
@@ -225,11 +228,11 @@ const ChatConversationPage: React.FC = () => {
 
       <main
         ref={messageContainerRef}
-        className="flex-1 min-h-0 p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent"
+        className="flex-1 min-h-0 p-3 md:p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent"
       >
         {messages.length === 0 ? (
           <div className="h-full flex items-center justify-center text-center">
-            <div className="max-w-md">
+            <div className="max-w-md p-4">
               <h2 className="text-2xl font-bold text-tarkov-secondary mb-2">
                 Start the conversation
               </h2>
@@ -239,7 +242,7 @@ const ChatConversationPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="space-y-8 pb-2 max-w-4xl mx-auto">
+          <div className="space-y-6 pb-2">
             {messages.map((msg, index) => {
               const isUser = msg.role === "user";
               const isLastMessage = index === messages.length - 1;
@@ -264,8 +267,8 @@ const ChatConversationPage: React.FC = () => {
                     }`}
                   >
                     <div
-                      className={`relative max-w-[85%] md:max-w-[75%] group ${
-                        isUser ? "mr-4" : "ml-4"
+                      className={`relative max-w-[90%] sm:max-w-[85%] md:max-w-[75%] group ${
+                        isUser ? "mr-2" : "ml-2"
                       }`}
                     >
                       <div
@@ -282,9 +285,8 @@ const ChatConversationPage: React.FC = () => {
                       >
                         {isUser ? "YOU" : "AI"}
                       </div>
-
                       <div
-                        className={`rounded-lg px-5 py-4 break-words shadow-md
+                        className={`rounded-lg px-4 py-3 break-words shadow-md
                           ${
                             isUser
                               ? "bg-tarkov-secondary/90 text-black rounded-tr-none"
@@ -296,7 +298,7 @@ const ChatConversationPage: React.FC = () => {
                             {msg.content}
                           </div>
                         ) : (
-                          <div className="prose prose-invert max-w-none text-text prose-headings:text-tarkov-secondary prose-a:text-tarkov-secondary">
+                          <div className="prose prose-invert max-w-none text-text prose-headings:text-tarkov-secondary prose-a:text-tarkov-secondary prose-p:break-words">
                             <Markdown>
                               {isLastMessage && isLoading
                                 ? "Generating response..."
@@ -305,11 +307,10 @@ const ChatConversationPage: React.FC = () => {
                           </div>
                         )}
                       </div>
-
                       <div
                         className={`absolute ${
                           isUser ? "left-0" : "right-0"
-                        } -bottom-3 opacity-0 group-hover:opacity-100 transition-opacity`}
+                        } -bottom-2 opacity-0 group-hover:opacity-100 transition-opacity`}
                       >
                         <div className="flex gap-1 bg-background-2 rounded-full p-1 border border-[#444] shadow-sm">
                           <button
@@ -325,9 +326,8 @@ const ChatConversationPage: React.FC = () => {
                 </div>
               );
             })}
-
             {isLoading && !messages.some((msg) => msg.id === "temp") && (
-              <div className="flex justify-start ml-4">
+              <div className="flex justify-start ml-2">
                 <div className="bg-ai-chat-message-background border border-[#444] text-text-secondary rounded-lg rounded-tl-none px-4 py-3 shadow-md flex items-center space-x-2">
                   <div className="flex space-x-1">
                     <div
@@ -352,19 +352,15 @@ const ChatConversationPage: React.FC = () => {
           </div>
         )}
       </main>
-
-      <footer className="p-4 border-t border-[#333] bg-background-2">
-        <form
-          onSubmit={handleSubmit}
-          className="flex space-x-2 max-w-4xl mx-auto"
-        >
-          <div className="relative flex-1">
+      <footer className="p-3 md:p-4 border-t border-[#333] bg-background-2">
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
+          <div className="relative">
             <Textarea
               ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your message..."
-              className="resize-none min-h-[56px] max-h-[200px] flex-1 bg-background-2 border-[#444] focus:border-tarkov-secondary text-text rounded-md py-3 pr-12"
+              className="resize-none min-h-[56px] max-h-[200px] w-full bg-background-2 border-[#444] focus:border-tarkov-secondary text-text rounded-md py-3 pr-12"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -385,10 +381,10 @@ const ChatConversationPage: React.FC = () => {
               )}
             </Button>
           </div>
+          <div className="text-center text-text-secondary text-xs">
+            Press Enter to send, Shift+Enter for new line
+          </div>
         </form>
-        <div className="mt-2 text-center text-text-secondary text-xs">
-          Press Enter to send, Shift+Enter for new line
-        </div>
       </footer>
     </div>
   );

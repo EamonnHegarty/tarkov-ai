@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -85,8 +85,8 @@ export default function NewChatPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <header className="p-6 text-center">
-        <h1 className="text-3xl font-bold text-tarkov-secondary mb-1">
+      <header className="p-4 sm:p-6 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold text-tarkov-secondary mb-1">
           Tarkov Intel Network
         </h1>
         <p className="text-text-secondary text-sm">
@@ -94,23 +94,23 @@ export default function NewChatPage() {
         </p>
       </header>
 
-      <main className="flex-1 overflow-hidden flex flex-col items-center justify-center px-4 py-8">
-        <div className="max-w-2xl w-full bg-ai-chat-message-background border border-[#444] rounded-lg p-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-tarkov-secondary mb-4">
+      <main className="flex-1 overflow-auto flex flex-col items-center justify-center px-3 sm:px-4 py-4 sm:py-8">
+        <div className="max-w-2xl w-full bg-ai-chat-message-background border border-[#444] rounded-lg p-4 sm:p-6 shadow-lg">
+          <h2 className="text-xl sm:text-2xl font-bold text-tarkov-secondary mb-3 sm:mb-4">
             Start Comms
           </h2>
-          <p className="text-text-secondary mb-6">
+          <p className="text-text-secondary mb-4 sm:mb-6 text-sm sm:text-base">
             Establish a secure connection with tactical intel. What do you need
             assistance with, operator?
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-6 sm:mb-8">
             {topics.map((topic) => (
               <div
                 key={topic.id}
                 onClick={() => handleTopicSelect(topic)}
                 className={`
-                  flex items-center gap-3 p-4 rounded-md border cursor-pointer transition-all
+                  flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-md border cursor-pointer transition-all text-sm sm:text-base
                   ${
                     selectedTopic === topic.id
                       ? "border-tarkov-secondary bg-tarkov-secondary/10 text-text"
@@ -139,13 +139,13 @@ export default function NewChatPage() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Enter your message or select a topic above..."
-                  className="flex-1 bg-background-2 border-[#444] focus:border-tarkov-secondary text-text pr-12 min-h-[60px] py-4 rounded-md"
+                  className="flex-1 bg-background-2 border-[#444] focus:border-tarkov-secondary text-text pr-12 min-h-[50px] py-3 rounded-md"
                 />
                 <Button
                   type="submit"
                   size="icon"
                   disabled={isLoading || !input.trim()}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-tarkov-secondary text-black hover:bg-tarkov-secondary/80 h-10 w-10 rounded-full"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-tarkov-secondary text-black hover:bg-tarkov-secondary/80 h-8 w-8"
                 >
                   {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />

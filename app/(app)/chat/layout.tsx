@@ -17,7 +17,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
 
   const { data, error, isLoading, refetch } = useGetChatsQuery();
   const refreshChats = useAppSelector((state: any) => state.chat.refreshChats);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (refreshChats) {
@@ -34,6 +34,9 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
 
   const handleNewChat = () => {
     router.push("/chat");
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
   };
 
   useEffect(() => {
@@ -51,11 +54,17 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  }, [currentChatId]);
+
   if (error) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-center p-6 bg-ai-chat-message-background rounded-lg border border-[#444]">
-          <div className="text-red-400 mb-4">
+        <div className="text-center p-6 bg-ai-chat-message-background rounded-lg border border-[#444] max-w-md mx-auto">
+          <div className="text-red-400 mb-4 flex justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="48"
@@ -92,7 +101,8 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="h-[calc(100vh-6rem)] flex flex-col md:flex-row">
-      <div className="md:hidden flex items-center p-4 border-b border-[#333] bg-background-2">
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-[#333] bg-background-2">
         <Button
           variant="ghost"
           size="icon"
@@ -101,21 +111,40 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
         >
           {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </Button>
-        <h2 className="ml-2 text-xl font-bold text-tarkov-secondary">
+        <h2 className="text-xl font-bold text-tarkov-secondary">
           Tarkov Comms
         </h2>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleNewChat}
+          className="text-text-secondary hover:text-tarkov-secondary"
+        >
+          <PlusCircle size={20} />
+        </Button>
       </div>
       <aside
         className={`${
-          sidebarOpen ? "flex" : "hidden"
-        } md:flex flex-col w-full md:w-80 bg-background-2 border-r border-[#333] overflow-hidden transition-all duration-300 ease-in-out md:relative absolute top-[61px] md:top-0 bottom-0 z-20`}
+          sidebarOpen ? "fixed inset-0 z-40" : "hidden"
+        } md:relative md:flex md:z-auto flex-col w-full md:w-80 bg-background-2 border-r border-[#333] overflow-hidden transition-all duration-300 ease-in-out`}
+        style={{
+          height: sidebarOpen ? "100%" : "auto",
+          top: sidebarOpen ? "0" : "auto",
+        }}
       >
-        <div className="hidden md:flex items-center p-4 border-b border-[#333]">
+        <div className="flex items-center justify-between p-4 border-b border-[#333]">
           <h2 className="text-xl font-bold text-tarkov-secondary">
             Comms History
           </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden text-text-secondary hover:text-tarkov-secondary"
+          >
+            <X size={20} />
+          </Button>
         </div>
-
         <div className="p-4">
           <Button
             onClick={handleNewChat}
@@ -125,7 +154,6 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
             <span>New Communication</span>
           </Button>
         </div>
-
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
             <div className="p-4 space-y-3">
@@ -141,33 +169,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
               {data.map(
                 (chat: {
                   id: React.Key | null | undefined;
-                  title:
-                    | string
-                    | number
-                    | bigint
-                    | boolean
-                    | React.ReactElement<
-                        unknown,
-                        string | React.JSXElementConstructor<any>
-                      >
-                    | Iterable<React.ReactNode>
-                    | React.ReactPortal
-                    | Promise<
-                        | string
-                        | number
-                        | bigint
-                        | boolean
-                        | React.ReactPortal
-                        | React.ReactElement<
-                            unknown,
-                            string | React.JSXElementConstructor<any>
-                          >
-                        | Iterable<React.ReactNode>
-                        | null
-                        | undefined
-                      >
-                    | null
-                    | undefined;
+                  title: string;
                   createdAt: string | number | Date;
                 }) => (
                   <li key={chat.id} className="border-b border-[#333]">
@@ -178,6 +180,11 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
                           ? "bg-[#333] border-l-4 border-tarkov-secondary"
                           : ""
                       }`}
+                      onClick={() => {
+                        if (window.innerWidth < 768) {
+                          setSidebarOpen(false);
+                        }
+                      }}
                     >
                       <div className="flex items-start gap-3">
                         <div className="text-tarkov-secondary mt-1">
@@ -209,14 +216,14 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
           )}
         </div>
       </aside>
+      {sidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
       <main className="flex-1 overflow-hidden bg-tarkov relative">
         {children}
-        {sidebarOpen && (
-          <div
-            className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-10"
-            onClick={() => setSidebarOpen(false)}
-          ></div>
-        )}
       </main>
     </div>
   );

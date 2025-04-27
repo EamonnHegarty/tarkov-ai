@@ -24,12 +24,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Step 1: Generate embeddings for the prompt
     console.log(`Generating embeddings for query: "${prompt}"`);
     const vector = await new OpenAIEmbeddings().embedQuery(prompt);
 
-    // Step 2: Query the vector database with higher limit for analytics
-    // Retrieve more snippets for comprehensive analysis
     console.log("Querying Pinecone for relevant content");
     const rawResults = await queryEmbeddings(vector, 100);
 
