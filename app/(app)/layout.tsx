@@ -24,7 +24,7 @@ const ProtectedAppLayout = ({ children }: { children: React.ReactNode }) => {
           <UserButton />
         </div>
       </header>
-      <main className="flex-1 min-h-0 px-6 ">{children}</main>
+      <main className="flex-1 min-h-0 px-6 mx-6 ">{children}</main>
     </div>
   );
 };
