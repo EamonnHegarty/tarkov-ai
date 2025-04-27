@@ -6,7 +6,7 @@ import { useGetChatsQuery } from "@/lib/store/services/chatApi";
 import { setChats, setRefreshChats } from "@/lib/store/features/chat/chatSlice";
 import { Button } from "@/components/ui/button";
 import { useRouter, useParams } from "next/navigation";
-import { PlusCircle, Menu, X, Trash2, TerminalSquare } from "lucide-react";
+import { PlusCircle, Menu, X, TerminalSquare } from "lucide-react";
 import { format } from "date-fns";
 
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
@@ -92,7 +92,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="h-[calc(100vh-6rem)] flex flex-col md:flex-row">
-      <div className="md:hidden flex items-center p-4 border-b border-[#333]">
+      <div className="md:hidden flex items-center p-4 border-b border-[#333] bg-background-2">
         <Button
           variant="ghost"
           size="icon"
@@ -108,7 +108,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
       <aside
         className={`${
           sidebarOpen ? "flex" : "hidden"
-        } md:flex flex-col w-full md:w-80 bg-background-2 border-r border-[#333] overflow-hidden transition-all duration-300 ease-in-out`}
+        } md:flex flex-col w-full md:w-80 bg-background-2 border-r border-[#333] overflow-hidden transition-all duration-300 ease-in-out md:relative absolute top-[61px] md:top-0 bottom-0 z-20`}
       >
         <div className="hidden md:flex items-center p-4 border-b border-[#333]">
           <h2 className="text-xl font-bold text-tarkov-secondary">

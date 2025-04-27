@@ -225,7 +225,7 @@ const ChatConversationPage: React.FC = () => {
 
       <main
         ref={messageContainerRef}
-        className="flex-1 min-h-0 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent"
+        className="flex-1 min-h-0 p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent"
       >
         {messages.length === 0 ? (
           <div className="h-full flex items-center justify-center text-center">
@@ -239,7 +239,7 @@ const ChatConversationPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="space-y-6 pb-2">
+          <div className="space-y-8 pb-2 max-w-4xl mx-auto">
             {messages.map((msg, index) => {
               const isUser = msg.role === "user";
               const isLastMessage = index === messages.length - 1;
@@ -265,7 +265,7 @@ const ChatConversationPage: React.FC = () => {
                   >
                     <div
                       className={`relative max-w-[85%] md:max-w-[75%] group ${
-                        isUser ? "mr-2" : "ml-2"
+                        isUser ? "mr-4" : "ml-4"
                       }`}
                     >
                       <div
@@ -282,8 +282,9 @@ const ChatConversationPage: React.FC = () => {
                       >
                         {isUser ? "YOU" : "AI"}
                       </div>
+
                       <div
-                        className={`rounded-lg px-5 py-3 break-words shadow-md
+                        className={`rounded-lg px-5 py-4 break-words shadow-md
                           ${
                             isUser
                               ? "bg-tarkov-secondary/90 text-black rounded-tr-none"
@@ -304,10 +305,11 @@ const ChatConversationPage: React.FC = () => {
                           </div>
                         )}
                       </div>
+
                       <div
                         className={`absolute ${
                           isUser ? "left-0" : "right-0"
-                        } -bottom-2 opacity-0 group-hover:opacity-100 transition-opacity`}
+                        } -bottom-3 opacity-0 group-hover:opacity-100 transition-opacity`}
                       >
                         <div className="flex gap-1 bg-background-2 rounded-full p-1 border border-[#444] shadow-sm">
                           <button
@@ -323,8 +325,9 @@ const ChatConversationPage: React.FC = () => {
                 </div>
               );
             })}
+
             {isLoading && !messages.some((msg) => msg.id === "temp") && (
-              <div className="flex justify-start ml-2">
+              <div className="flex justify-start ml-4">
                 <div className="bg-ai-chat-message-background border border-[#444] text-text-secondary rounded-lg rounded-tl-none px-4 py-3 shadow-md flex items-center space-x-2">
                   <div className="flex space-x-1">
                     <div
@@ -349,8 +352,12 @@ const ChatConversationPage: React.FC = () => {
           </div>
         )}
       </main>
+
       <footer className="p-4 border-t border-[#333] bg-background-2">
-        <form onSubmit={handleSubmit} className="flex space-x-2">
+        <form
+          onSubmit={handleSubmit}
+          className="flex space-x-2 max-w-4xl mx-auto"
+        >
           <div className="relative flex-1">
             <Textarea
               ref={textareaRef}

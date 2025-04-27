@@ -95,7 +95,7 @@ export default function NewChatPage() {
       </header>
 
       <main className="flex-1 overflow-hidden flex flex-col items-center justify-center px-4 py-8">
-        <div className="max-w-2xl w-full bg-ai-chat-message-background border border-[#444] rounded-lg p-6 shadow-lg">
+        <div className="max-w-2xl w-full bg-ai-chat-message-background border border-[#444] rounded-lg p-8 shadow-lg">
           <h2 className="text-2xl font-bold text-tarkov-secondary mb-4">
             Start Comms
           </h2>
@@ -104,13 +104,13 @@ export default function NewChatPage() {
             assistance with, operator?
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
             {topics.map((topic) => (
               <div
                 key={topic.id}
                 onClick={() => handleTopicSelect(topic)}
                 className={`
-                  flex items-center gap-3 p-3 rounded-md border cursor-pointer transition-all
+                  flex items-center gap-3 p-4 rounded-md border cursor-pointer transition-all
                   ${
                     selectedTopic === topic.id
                       ? "border-tarkov-secondary bg-tarkov-secondary/10 text-text"
@@ -145,7 +145,7 @@ export default function NewChatPage() {
                   type="submit"
                   size="icon"
                   disabled={isLoading || !input.trim()}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-tarkov-secondary text-black hover:bg-tarkov-secondary/80 h-8 w-8"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-tarkov-secondary text-black hover:bg-tarkov-secondary/80 h-10 w-10 rounded-full"
                 >
                   {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
