@@ -16,7 +16,10 @@ model User {
   clerkId String @unique
   email   String @unique
 
-  chats Chat[]
+  chats           Chat[]
+  tokenUsage      TokenUsage[]
+  dailyTokenLimit Int          @default(10000)
+  isTrustedUser   Boolean      @default(false)
 }
 
 model Chat {
@@ -47,4 +50,20 @@ model Message {
   chatId String
 
   @@index([chatId])
+}
+
+model TokenUsage {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  date       DateTime @default(now())
+  tokenCount Int      @default(0)
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
 }

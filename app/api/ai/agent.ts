@@ -1,8 +1,29 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { runLLM } from "./llm";
-import { addMessages, getMessages, saveToolResponse } from "./memory";
-import { runTool } from "./toolRunner";
-import { logMessage, showLoader } from "./ui";
+import OpenAI from "openai";
+import { AIMessage } from "./types";
+import { resetConversation } from "./memory";
+
+let currentConversation: AIMessage[] = [];
+
+const openai = new OpenAI();
+
+const addMessages = (messages: AIMessage[]) => {
+  currentConversation = [...currentConversation, ...messages];
+  return currentConversation;
+};
+
+const getMessages = () => {
+  return currentConversation;
+};
+
+const saveToolResponse = (toolCallId: string, toolResponse: string) => {
+  return addMessages([
+    {
+      role: "tool",
+      content: toolResponse,
+      tool_call_id: toolCallId,
+    },
+  ]);
+};
 
 export const runAgent = async ({
   userMessage,
@@ -11,29 +32,71 @@ export const runAgent = async ({
   userMessage: string;
   tools?: any[];
 }) => {
-  await addMessages([{ role: "user", content: userMessage }]);
+  resetConversation();
+  currentConversation = [];
 
-  const loader = showLoader("thinking ... 🤔");
+  addMessages([{ role: "user", content: userMessage }]);
 
   while (true) {
-    const history = await getMessages();
-    const response = await runLLM({ messages: history, tools });
-    await addMessages([response]);
+    const history = getMessages();
 
-    if (response.content) {
-      loader.stop();
-      logMessage(response);
+    const formattedTools = tools?.map((tool) => ({
+      type: "function",
+      function: tool,
+    }));
+
+    const payload: any = {
+      model: "gpt-3.5-turbo",
+      temperature: 0.7,
+      messages: history,
+    };
+
+    if (formattedTools && formattedTools.length > 0) {
+      payload.tools = formattedTools;
+      payload.tool_choice = "auto";
+    }
+
+    const response = await openai.chat.completions.create(payload);
+    const message = response.choices[0].message;
+
+    addMessages([message]);
+
+    if (message.content) {
       return getMessages();
     }
 
-    if (response.tool_calls) {
-      const toolCall = response.tool_calls[0];
-      logMessage(response);
-      loader.update(`executing: ${toolCall.function.name}`);
-
-      const toolResponse = await runTool(toolCall, userMessage);
-      await saveToolResponse(toolCall.id, toolResponse);
-      loader.update(`executed: ${toolCall.function.name}`);
+    if (message.tool_calls && message.tool_calls.length > 0) {
+      for (const toolCall of message.tool_calls) {
+        const toolResponse = "This is a placeholder tool response";
+        saveToolResponse(toolCall.id, toolResponse);
+      }
+    } else {
+      break;
     }
   }
+
+  return getMessages();
+};
+
+export const simpleChat = async (userMessage: string): Promise<string> => {
+  const response = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are an AI assistant for the Escape from Tarkov video game. " +
+          "You provide helpful advice on game mechanics, maps, weapons, strategies, and updates. " +
+          "Keep responses concise and directly relevant to the game. " +
+          "Format responses with proper markdown for readability.",
+      },
+      { role: "user", content: userMessage },
+    ],
+    temperature: 0.7,
+  });
+
+  return (
+    response.choices[0].message.content ||
+    "I'm not sure how to respond to that."
+  );
 };

@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { queryEmbeddings } from "@/lib/pineconeClient";
+import {
+  checkTokenLimit,
+  estimateTokens,
+  updateTokenUsage,
+} from "@/middleware/tokenLimits";
+import { getUserByClerkID } from "@/utils/auth";
 
 const openai = new OpenAI();
 
@@ -23,6 +29,28 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // this functionality is expensive so make I am making it cost users a decent amount of their daily tokens
+    const estimatedTokens = estimateTokens(prompt) * 15;
+
+    const { canProceed, remaining } = await checkTokenLimit(
+      req,
+      estimatedTokens
+    );
+
+    if (!canProceed) {
+      return NextResponse.json(
+        {
+          error: "Daily token limit exceeded",
+          remaining,
+          message:
+            "You've reached your daily usage limit. Please try again tomorrow.",
+        },
+        { status: 429 }
+      );
+    }
+
+    const user = await getUserByClerkID();
 
     console.log(`Generating embeddings for query: "${prompt}"`);
     const vector = await new OpenAIEmbeddings().embedQuery(prompt);
@@ -162,6 +190,13 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
     const msg = response.choices[0].message;
     const payloadText = msg.function_call?.arguments ?? msg.content!;
 
+    const tokensUsed =
+      estimateTokens(prompt) +
+      estimateTokens(context) +
+      estimateTokens(payloadText);
+
+    await updateTokenUsage(user.id, tokensUsed);
+
     let parsed;
     try {
       parsed = JSON.parse(payloadText);
@@ -217,6 +252,8 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
     return NextResponse.json({
       answer: parsed.answer,
       charts: validatedCharts,
+      tokensUsed,
+      tokensRemaining: remaining - tokensUsed,
     });
   } catch (error) {
     console.error("Error in Tarkov analytics API:", error);

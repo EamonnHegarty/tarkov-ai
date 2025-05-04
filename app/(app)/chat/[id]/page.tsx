@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
@@ -9,12 +8,19 @@ import Markdown from "react-markdown";
 import { Send, Loader2, Copy, Share2, Trash } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import { TokenUsageMeter } from "@/components/TokensUsageDashboard";
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   createdAt: string;
+}
+
+interface TokenUsage {
+  tokensUsed: number;
+  tokensRemaining: number;
+  tokenLimit: number;
 }
 
 const ChatConversationPage: React.FC = () => {
@@ -26,6 +32,7 @@ const ChatConversationPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
@@ -51,6 +58,17 @@ const ChatConversationPage: React.FC = () => {
         setError("Failed to load conversation. Please try again.");
         setIsFetching(false);
       });
+
+    fetch("/api/user/token-usage")
+      .then((res) => res.json())
+      .then((data) => {
+        setTokenUsage({
+          tokensUsed: data.tokensUsed,
+          tokensRemaining: data.tokensRemaining,
+          tokenLimit: data.tokenLimit,
+        });
+      })
+      .catch((e) => console.error("Failed to fetch token usage:", e));
   }, [chatId]);
 
   useEffect(() => {
@@ -99,11 +117,41 @@ const ChatConversationPage: React.FC = () => {
         body: JSON.stringify({ userMessage }),
       });
 
-      if (!res.ok) throw new Error("Error sending message");
+      if (!res.ok) {
+        const errorData = await res.json();
+
+        if (
+          res.status === 429 &&
+          errorData.error === "Daily token limit exceeded"
+        ) {
+          toast.error(errorData.message || "Daily token limit exceeded");
+          setMessages((prev) =>
+            prev.filter((msg) => msg.id !== tempUserMessage.id)
+          );
+
+          if (errorData.remaining !== undefined) {
+            setTokenUsage((prevUsage) =>
+              prevUsage
+                ? {
+                    ...prevUsage,
+                    tokensRemaining: errorData.remaining,
+                  }
+                : null
+            );
+          }
+
+          setIsLoading(false);
+          return;
+        }
+
+        throw new Error("Error sending message");
+      }
 
       const data = (await res.json()) as {
         userMessage: Message;
         assistantMessage: Message;
+        tokensUsed?: number;
+        tokensRemaining?: number;
       };
 
       setMessages((prev) =>
@@ -111,6 +159,18 @@ const ChatConversationPage: React.FC = () => {
           .filter((msg) => msg.id !== tempUserMessage.id)
           .concat([data.userMessage, data.assistantMessage])
       );
+
+      if (
+        data.tokensUsed !== undefined &&
+        data.tokensRemaining !== undefined &&
+        tokenUsage
+      ) {
+        setTokenUsage({
+          ...tokenUsage,
+          tokensUsed: tokenUsage.tokensUsed + data.tokensUsed,
+          tokensRemaining: data.tokensRemaining,
+        });
+      }
     } catch (e) {
       console.error(e);
       toast.error("Failed to send message. Please try again.");
@@ -225,6 +285,16 @@ const ChatConversationPage: React.FC = () => {
           </Button>
         </div>
       </header>
+
+      {tokenUsage && (
+        <div className="">
+          <TokenUsageMeter
+            tokensUsed={tokenUsage.tokensUsed}
+            tokensRemaining={tokenUsage.tokensRemaining}
+            tokenLimit={tokenUsage.tokenLimit}
+          />
+        </div>
+      )}
 
       <main
         ref={messageContainerRef}

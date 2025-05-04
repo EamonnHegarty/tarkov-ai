@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -29,6 +29,7 @@ import {
   EmptyAnalyticsState,
   ErrorState,
 } from "./loading-state";
+import { TokenUsageMeter } from "@/components/TokensUsageDashboard";
 
 const CHART_COLORS = [
   "#cfa850",
@@ -44,7 +45,10 @@ export default function AnalyticsPage() {
   const [result, setResult] = useState<{
     answer: string;
     charts: ChartSpec[];
+    tokensUsed?: number;
+    tokensRemaining?: number;
   } | null>(null);
+  const [tokenLimit, setTokenLimit] = useState<number>(10000);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,11 +73,29 @@ export default function AnalyticsPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
+
+        if (
+          response.status === 429 &&
+          errorData.error === "Daily token limit exceeded"
+        ) {
+          setError(
+            errorData.message ||
+              "Daily token limit exceeded. Please try again tomorrow."
+          );
+          setLoading(false);
+          return;
+        }
+
         throw new Error(errorData.error || "Failed to fetch analytics data");
       }
 
       const data = await response.json();
-      setResult(data);
+      setResult({
+        answer: data.answer,
+        charts: data.charts,
+        tokensUsed: data.tokensUsed,
+        tokensRemaining: data.tokensRemaining,
+      });
     } catch (err) {
       console.error("Analytics query error:", err);
       setError(err instanceof Error ? err.message : "Unknown error occurred");
@@ -92,6 +114,15 @@ export default function AnalyticsPage() {
     // For 5-6 charts: 3 columns with 2 rows
     return "col-span-12 md:col-span-6 lg:col-span-4";
   };
+
+  useEffect(() => {
+    fetch("/api/user/token-usage")
+      .then((res) => res.json())
+      .then((data) => {
+        setTokenLimit(data.tokenLimit);
+      })
+      .catch((e) => console.error("Failed to fetch token limit:", e));
+  }, []);
 
   const renderChart = (chart: ChartSpec) => {
     const formattedData = chart.data.map((point) => ({
@@ -278,7 +309,7 @@ export default function AnalyticsPage() {
           Ask questions about r/EscapefromTarkov and get data-driven insights
         </p>
 
-        <form onSubmit={handleSubmit} className="flex gap-2 mb-8">
+        <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
           <Input
             type="text"
             value={query}
@@ -301,6 +332,17 @@ export default function AnalyticsPage() {
             )}
           </Button>
         </form>
+
+        {result?.tokensUsed && result?.tokensRemaining && (
+          <div className="mt-4">
+            <TokenUsageMeter
+              tokensUsed={result.tokensUsed}
+              tokensRemaining={result.tokensRemaining}
+              tokenLimit={tokenLimit}
+              defaultCollapsed={true}
+            />
+          </div>
+        )}
       </div>
 
       {error && <ErrorState message={error} />}
