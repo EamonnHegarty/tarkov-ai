@@ -11,16 +11,17 @@ async function updateTarkovData() {
 
   await initPineconeIndex();
 
-  console.log("Deleting existing data from Pinecone index...");
-  await deleteExistingData();
+  // console.log("Deleting existing data from Pinecone index...");
+  // await deleteExistingData();
 
   console.log("Fetching new content...");
 
   const newContent = await fetchTarkovContent({
-    pages: 20,
+    pages: 50,
     delayMs: 1500,
     sortBy: "hot",
-    includeComments: false,
+    timeframe: "month",
+    includeComments: true,
   });
 
   console.log(`Fetched ${newContent.length} content items`);

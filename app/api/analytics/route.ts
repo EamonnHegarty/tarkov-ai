@@ -30,8 +30,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // this functionality is expensive so make I am making it cost users a decent amount of their daily tokens
-    const estimatedTokens = estimateTokens(prompt) * 15;
+    const isComprehensiveQuery =
+      prompt.toLowerCase().includes("comprehensive") ||
+      prompt.toLowerCase().includes("all") ||
+      prompt.toLowerCase().includes("every") ||
+      prompt.toLowerCase().includes("complete");
+
+    const isSpecificQuery =
+      prompt.toLowerCase().includes("specific") ||
+      prompt.toLowerCase().includes("detailed") ||
+      prompt.toLowerCase().includes("in-depth");
+
+    const maxSnippets = isComprehensiveQuery ? 100 : isSpecificQuery ? 50 : 30;
+    const relevanceThreshold = isComprehensiveQuery ? 0.6 : 0.7;
+    const tokenMultiplier = isComprehensiveQuery
+      ? 20
+      : isSpecificQuery
+      ? 18
+      : 15;
+    const estimatedTokens = estimateTokens(prompt) * tokenMultiplier;
 
     const { canProceed, remaining } = await checkTokenLimit(
       req,
@@ -56,7 +73,8 @@ export async function POST(req: NextRequest) {
     const vector = await new OpenAIEmbeddings().embedQuery(prompt);
 
     console.log("Querying Pinecone for relevant content");
-    const rawResults = await queryEmbeddings(vector, 100);
+    const vectorQueryLimit = maxSnippets * 2;
+    const rawResults = await queryEmbeddings(vector, vectorQueryLimit);
 
     if (!rawResults || rawResults.length === 0) {
       console.warn("No matching content found in vector database");
@@ -68,23 +86,51 @@ export async function POST(req: NextRequest) {
 
     const seen = new Set<string>();
     const snippets: string[] = [];
+    const minContentLength = 20;
 
     for (const match of rawResults) {
       const txt: string =
         typeof match?.metadata?.content === "string"
           ? match.metadata.content
           : "";
-      if (txt && !seen.has(txt)) {
+
+      if (!txt || txt.length < minContentLength) continue;
+
+      const score = match.score ?? 0;
+
+      if (score >= relevanceThreshold && !seen.has(txt)) {
         seen.add(txt);
         snippets.push(txt);
       }
 
-      if (seen.size >= 30) break;
+      if (seen.size >= maxSnippets) break;
     }
 
-    console.log(`Found ${snippets.length} relevant content snippets`);
+    console.log(
+      `Found ${snippets.length} relevant content snippets out of ${rawResults.length} matches`
+    );
 
-    const context = snippets.join("\n\n");
+    const minSnippets = Math.min(10, rawResults.length);
+    if (snippets.length < minSnippets) {
+      console.log(
+        `Adding lower relevance results to reach minimum of ${minSnippets} snippets`
+      );
+      for (const match of rawResults) {
+        const txt: string =
+          typeof match?.metadata?.content === "string"
+            ? match.metadata.content
+            : "";
+
+        if (txt && txt.length >= minContentLength && !seen.has(txt)) {
+          seen.add(txt);
+          snippets.push(txt);
+        }
+
+        if (seen.size >= minSnippets) break;
+      }
+    }
+
+    const context = snippets.join("\n\n---\n\n");
 
     console.log("Generating analytics with OpenAI");
     const response = await openai.chat.completions.create({
@@ -99,7 +145,7 @@ Your specialty is identifying patterns, trends, and insights from Reddit discuss
 When analyzing Tarkov subreddit content:
 1. Focus on extracting meaningful information about weapons, maps, game mechanics, player experiences, etc.
 2. Look for recurring themes, common complaints, popular strategies, and community sentiment
-3. Quantify your findings with concrete numbers when possible (e.g., "mentioned in 12/30 posts")
+3. Quantify your findings with concrete numbers when possible (e.g., "mentioned in ${snippets.length}/${rawResults.length} posts")
 4. Create appropriate charts that best visualize the data patterns
 5. Provide tactical insights that would be valuable to Tarkov players
 
@@ -117,7 +163,7 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
         },
         {
           role: "user",
-          content: `Question about Escape from Tarkov subreddit: "${prompt}"\n\nContext from r/EscapefromTarkov posts:\n${context}`,
+          content: `Question about Escape from Tarkov subreddit: "${prompt}"\n\nContext from r/EscapefromTarkov posts (${snippets.length} relevant posts):\n${context}`,
         },
       ],
       functions: [
@@ -229,6 +275,8 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
       data: ChartDataPoint[];
     }
 
+    const maxCharts = isComprehensiveQuery ? 8 : 6;
+
     const validatedCharts: Chart[] = parsed.charts
       .filter((chart: Chart) => {
         return (
@@ -246,14 +294,22 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
           )
         );
       })
-
-      .slice(0, 6);
+      .slice(0, maxCharts);
 
     return NextResponse.json({
       answer: parsed.answer,
       charts: validatedCharts,
       tokensUsed,
       tokensRemaining: remaining - tokensUsed,
+      metadata: {
+        snippetsAnalyzed: snippets.length,
+        totalMatchesFound: rawResults.length,
+        queryType: isComprehensiveQuery
+          ? "comprehensive"
+          : isSpecificQuery
+          ? "specific"
+          : "standard",
+      },
     });
   } catch (error) {
     console.error("Error in Tarkov analytics API:", error);

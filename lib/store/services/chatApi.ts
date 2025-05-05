@@ -3,8 +3,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 type Chat = {
   id: string;
   title: string;
+  createdAt: string | number | Date;
 };
-
 export const chatApi = createApi({
   reducerPath: "chatApi",
   //  i should probably update the base to include /chat, waiting to see how this plays out

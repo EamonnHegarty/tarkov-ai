@@ -74,19 +74,58 @@ export async function upsertEmbeddings(embeddings: any[]) {
 
 export async function queryEmbeddings(
   queryVector: number[],
-  top_k: number = 10
+  top_k: number = 10,
+  scoreThreshold?: number
 ) {
   try {
     const index = pc.index(PINECONE_INDEX_NAME);
 
-    const queryResponse = await index.query({
+    const queryParams: any = {
       vector: queryVector,
       topK: top_k,
-      includeValues: true,
+      includeValues: false,
       includeMetadata: true,
-    });
+    };
 
-    return queryResponse.matches || [];
+    if (scoreThreshold !== undefined) {
+      queryParams.filter = {
+        score: { $gte: scoreThreshold },
+      };
+    }
+
+    let attempts = 0;
+    const maxAttempts = 3;
+    let queryResponse;
+
+    while (attempts < maxAttempts) {
+      try {
+        queryResponse = await index.query(queryParams);
+        break;
+      } catch (error) {
+        attempts++;
+        if (attempts >= maxAttempts) {
+          throw error;
+        }
+        console.warn(`Pinecone query attempt ${attempts} failed, retrying...`);
+        await new Promise((resolve) =>
+          setTimeout(resolve, 1000 * Math.pow(2, attempts - 1))
+        );
+      }
+    }
+
+    const matches = queryResponse?.matches || [];
+
+    console.log(
+      `Pinecone returned ${matches.length} matches with score range: ${
+        matches.length > 0
+          ? `${Math.min(...matches.map((m) => m.score || 0))} to ${Math.max(
+              ...matches.map((m) => m.score || 0)
+            )}`
+          : "N/A"
+      }`
+    );
+
+    return matches;
   } catch (error) {
     console.error("Error querying embeddings:", error);
     return [];
@@ -96,8 +135,35 @@ export async function queryEmbeddings(
 export async function deleteExistingData() {
   try {
     const index = pc.index(PINECONE_INDEX_NAME);
-    await index.deleteAll();
-    console.log("Existing data deleted from Pinecone index");
+
+    // Check if index exists first
+    try {
+      await index.describeIndexStats();
+    } catch (err) {
+      console.log(
+        "Index statistics not available, may need to create index first"
+      );
+      return; // Skip deletion if index doesn't exist yet
+    }
+
+    // Try namespace-specific deletion first (more precise)
+    try {
+      await index.namespace("").deleteAll();
+      console.log("Existing data deleted from default namespace");
+      return;
+    } catch (namespaceErr) {
+      console.log(
+        "Namespace-specific deletion failed, trying filter-based deletion"
+      );
+    }
+
+    // Try filter-based deletion as fallback
+    try {
+      await index.deleteMany({});
+      console.log("Existing data deleted using filter-based deletion");
+    } catch (filterErr) {
+      throw new Error(`Failed to delete data: ${filterErr}`);
+    }
   } catch (error) {
     console.error("Error deleting existing data:", error);
     throw error;
