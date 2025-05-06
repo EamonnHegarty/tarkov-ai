@@ -170,7 +170,7 @@ export default function DocsPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <p className="text-text-secondary">
-              The chat system uses OpenAI's models to provide contextual and
+              The chat system uses OpenAI&#39;s models to provide contextual and
               knowledgeable responses to questions about Escape from Tarkov. The
               system is designed to assist players with game mechanics,
               strategies, quest information, and more.
@@ -182,7 +182,7 @@ export default function DocsPage() {
             <p className="text-text-secondary">
               The chat functionality follows a client-server architecture where
               the frontend React components communicate with Next.js API routes,
-              which in turn interact with OpenAI's API and the database.
+              which in turn interact with OpenAI&#39;s API and the database.
             </p>
 
             <h3 className="text-xl font-bold text-tarkov-secondary">
@@ -248,7 +248,7 @@ export default function DocsPage() {
               </li>
               <li>
                 <strong>Processing:</strong> Text is cleaned and transformed
-                into embeddings using OpenAI's embedding models
+                into embeddings using OpenAI&#39;s embedding models
               </li>
               <li>
                 <strong>Storage:</strong> Embeddings are stored in a Pinecone
@@ -353,7 +353,7 @@ export default function DocsPage() {
             </h3>
             <ol className="list-decimal pl-6 text-text-secondary space-y-2">
               <li>
-                Text content is processed through OpenAI's embedding models
+                Text content is processed through OpenAI&#39;s embedding models
               </li>
               <li>
                 The resulting high-dimensional vectors (1536 dimensions) capture
@@ -403,7 +403,7 @@ export default function DocsPage() {
             </h3>
             <ol className="list-decimal pl-6 text-text-secondary space-y-2">
               <li>
-                Users sign up or sign in through Clerk's authentication
+                Users sign up or sign in through Clerk&#39;s authentication
                 interface
               </li>
               <li>
@@ -445,9 +445,10 @@ export default function DocsPage() {
             </p>
             <ul className="list-disc pl-6 text-text-secondary space-y-2">
               <li>View all users and their token usage statistics</li>
-              <li>Adjust individual user's daily token limits</li>
+              <li>Adjust individual user&apos;s daily token limits</li>
               <li>
-                Mark users as "trusted" to grant them additional privileges
+                Mark users as &quot;trusted&quot; to grant them additional
+                privileges
               </li>
               <li>Monitor system-wide token consumption</li>
             </ul>
@@ -597,7 +598,7 @@ export default function DocsPage() {
                     PUT /api/user/token-usage
                   </h3>
                   <p className="text-text-secondary mb-2">
-                    Updates a user's token limit (admin only).
+                    Updates a user&apos;s token limit (admin only).
                   </p>
                   <h4 className="font-semibold text-tarkov-secondary mt-4 mb-2">
                     Request Body

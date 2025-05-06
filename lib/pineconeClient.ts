@@ -152,7 +152,8 @@ export async function deleteExistingData() {
       await index.describeIndexStats();
     } catch (error) {
       console.log(
-        "Index statistics not available, may need to create index first"
+        "Index statistics not available, may need to create index first",
+        error
       );
       return;
     }
@@ -163,7 +164,8 @@ export async function deleteExistingData() {
       return;
     } catch (error) {
       console.log(
-        "Namespace-specific deletion failed, trying filter-based deletion"
+        "Namespace-specific deletion failed, trying filter-based deletion",
+        error
       );
     }
 

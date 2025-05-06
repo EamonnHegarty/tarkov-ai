@@ -16,7 +16,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   const currentChatId = params?.id as string;
 
   const { data, error, isLoading, refetch } = useGetChatsQuery();
-  const refreshChats = useAppSelector((state: any) => state.chat.refreshChats);
+  const refreshChats = useAppSelector((state) => state.chat.refreshChats);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {

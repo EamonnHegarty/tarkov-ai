@@ -1,7 +1,7 @@
 import {
   initPineconeIndex,
   upsertEmbeddings,
-  deleteExistingData,
+  // deleteExistingData,
 } from "@/lib/pineconeClient";
 import { fetchTarkovContent } from "../lib/reddit";
 import { OpenAIEmbeddings } from "@langchain/openai";
@@ -30,7 +30,7 @@ async function updateTarkovData() {
 
   console.log("Upserting embeddings to Pinecone...");
   await upsertEmbeddings(
-    embeddings.map((embedding: any, index: string | number) => ({
+    embeddings.map((embedding, index: string | number) => ({
       id: `tarkov-${index}`,
       values: embedding,
       metadata: {

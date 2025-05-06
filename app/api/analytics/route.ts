@@ -247,6 +247,7 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
     try {
       parsed = JSON.parse(payloadText);
     } catch (error) {
+      console.error(error);
       console.error("Invalid JSON from OpenAI:", payloadText);
       return NextResponse.json(
         { error: "Failed to parse analytics results" },

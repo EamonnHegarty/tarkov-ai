@@ -30,7 +30,11 @@ export const runAgent = async ({
   tools,
 }: {
   userMessage: string;
-  tools?: any[];
+  tools?: Array<{
+    name: string;
+    description?: string;
+    parameters?: Record<string, unknown>;
+  }>;
 }) => {
   resetConversation();
   currentConversation = [];
@@ -41,11 +45,15 @@ export const runAgent = async ({
     const history = getMessages();
 
     const formattedTools = tools?.map((tool) => ({
-      type: "function",
-      function: tool,
+      type: "function" as const,
+      function: {
+        name: tool.name,
+        description: tool.description || "",
+        parameters: tool.parameters || {},
+      },
     }));
 
-    const payload: any = {
+    const payload: OpenAI.ChatCompletionCreateParams = {
       model: "gpt-3.5-turbo",
       temperature: 0.7,
       messages: history,
