@@ -8,13 +8,12 @@ import {
   estimateTokens,
 } from "@/middleware/tokenLimits";
 
-export const POST = async (
-  request: NextRequest,
-  { params }: { params: { chatId: string } }
-) => {
+export const POST = async (request: NextRequest) => {
   try {
     const { userMessage } = await request.json();
-    const chatId = params.chatId;
+
+    const url = new URL(request.url);
+    const chatId = url.pathname.split("/").at(-2);
 
     if (!chatId) {
       return NextResponse.json(
@@ -84,12 +83,10 @@ export const POST = async (
   }
 };
 
-export const GET = async (
-  request: NextRequest,
-  { params }: { params: { chatId: string } }
-) => {
+export const GET = async (request: NextRequest) => {
   try {
-    const chatId = params.chatId;
+    const url = new URL(request.url);
+    const chatId = url.pathname.split("/").at(-2);
 
     if (!chatId) {
       return NextResponse.json(
