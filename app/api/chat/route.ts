@@ -1,5 +1,6 @@
 import { getUserByClerkID } from "@/utils/auth";
 import { prisma } from "@/utils/db";
+import { NextResponse } from "next/server";
 
 export const GET = async () => {
   const user = await getUserByClerkID();
@@ -16,5 +17,5 @@ export const GET = async () => {
       createdAt: "asc",
     },
   });
-  return new Response(JSON.stringify(chats));
+  return new NextResponse(JSON.stringify(chats));
 };

@@ -85,7 +85,7 @@ export const POST = async (
 };
 
 export const GET = async (
-  request: Request,
+  request: NextRequest,
   { params }: { params: { chatId: string } }
 ) => {
   try {
