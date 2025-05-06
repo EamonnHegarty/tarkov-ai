@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import {
   ArrowRight,
   BookOpen,
@@ -22,8 +21,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Link from "next/link";
 
-export default function DocumentationPage() {
+export default function DocsPage() {
   return (
     <div className="container max-w-7xl mx-auto py-8 px-4 text-text">
       <header className="mb-12 text-center">
@@ -485,13 +485,9 @@ export default function DocumentationPage() {
                     Response
                   </h4>
                   <pre className="bg-background-2 p-4 rounded-md overflow-x-auto">
-                    {`[
-  {
-    "id": "string",
-    "title": "string",
-    "createdAt": "string"
-  }
-]`}
+                    {
+                      '[{"id": "string", "title": "string", "createdAt": "string"}]'
+                    }
                   </pre>
                 </div>
 
@@ -508,9 +504,7 @@ export default function DocumentationPage() {
                     Request Body
                   </h4>
                   <pre className="bg-background-2 p-4 rounded-md overflow-x-auto">
-                    {`{
-  "userMessage": "string"
-}`}
+                    {'{"userMessage": "string"}'}
                   </pre>
                 </div>
 
@@ -546,14 +540,9 @@ export default function DocumentationPage() {
                     Response
                   </h4>
                   <pre className="bg-background-2 p-4 rounded-md overflow-x-auto">
-                    {`[
-  {
-    "id": "string",
-    "content": "string",
-    "role": "user" | "assistant",
-    "createdAt": "string"
-  }
-]`}
+                    {
+                      '[{"id": "string", "content": "string", "role": "user or assistant", "createdAt": "string"}]'
+                    }
                   </pre>
                 </div>
               </TabsContent>
@@ -570,33 +559,15 @@ export default function DocumentationPage() {
                     Request Body
                   </h4>
                   <pre className="bg-background-2 p-4 rounded-md overflow-x-auto">
-                    {`{
-  "prompt": "string"
-}`}
+                    {'{"prompt": "string"}'}
                   </pre>
                   <h4 className="font-semibold text-tarkov-secondary mt-4 mb-2">
                     Response
                   </h4>
                   <pre className="bg-background-2 p-4 rounded-md overflow-x-auto">
-                    {`{
-  "answer": "string",
-  "charts": [
-    {
-      "type": "bar" | "line" | "pie" | "scatter",
-      "title": "string",
-      "xAxis": "string",
-      "yAxis": "string",
-      "data": [
-        {
-          "x": "string" | number,
-          "y": number
-        }
-      ]
-    }
-  ],
-  "tokensUsed": number,
-  "tokensRemaining": number
-}`}
+                    {
+                      '{"answer": "string", "charts": [{"type": "bar/line/pie/scatter", "title": "string", "xAxis": "string", "yAxis": "string", "data": [{"x": "value", "y": 0}]}], "tokensUsed": 0, "tokensRemaining": 0}'
+                    }
                   </pre>
                 </div>
               </TabsContent>
@@ -613,19 +584,9 @@ export default function DocumentationPage() {
                     Response
                   </h4>
                   <pre className="bg-background-2 p-4 rounded-md overflow-x-auto">
-                    {`{
-  "tokensUsed": number,
-  "tokensRemaining": number,
-  "tokenLimit": number,
-  "history": [
-    {
-      "date": "string",
-      "tokensUsed": number,
-      "percentOfLimit": number
-    }
-  ],
-  "isTrustedUser": boolean
-}`}
+                    {
+                      '{"tokensUsed": 0, "tokensRemaining": 0, "tokenLimit": 0, "history": [{"date": "2023-05-01", "tokensUsed": 0, "percentOfLimit": 0}], "isTrustedUser": false}'
+                    }
                   </pre>
                 </div>
 
@@ -642,10 +603,7 @@ export default function DocumentationPage() {
                     Request Body
                   </h4>
                   <pre className="bg-background-2 p-4 rounded-md overflow-x-auto">
-                    {`{
-  "userId": "string",
-  "newLimit": number
-}`}
+                    {'{"userId": "string", "newLimit": 0}'}
                   </pre>
                 </div>
               </TabsContent>

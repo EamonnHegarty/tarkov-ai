@@ -194,6 +194,7 @@ const ChatConversationPage: React.FC = () => {
     try {
       return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
     } catch (e) {
+      console.log(e);
       return "";
     }
   };

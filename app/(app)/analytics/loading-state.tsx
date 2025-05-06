@@ -57,7 +57,7 @@ export function EmptyAnalyticsState({
             className="bg-background-2 p-3 rounded border border-[#444444] text-text-secondary hover:border-tarkov-secondary cursor-pointer transition-colors duration-200"
             onClick={() => onExampleClick(example)}
           >
-            "{example}"
+            &quot;{example}&quot;
           </div>
         ))}
       </div>

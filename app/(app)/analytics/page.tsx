@@ -11,7 +11,6 @@ import {
   Cell,
   ScatterChart,
   Scatter,
-  Treemap,
   XAxis,
   YAxis,
   CartesianGrid,

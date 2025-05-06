@@ -327,7 +327,7 @@ export default function AdminPage() {
                   <TableRow>
                     <TableHead>Email</TableHead>
                     <TableHead>Daily Limit</TableHead>
-                    <TableHead>Today's Usage</TableHead>
+                    <TableHead>Today&apos;s Usage</TableHead>
                     <TableHead>Usage %</TableHead>
                     <TableHead>Trusted</TableHead>
                     <TableHead>Actions</TableHead>
