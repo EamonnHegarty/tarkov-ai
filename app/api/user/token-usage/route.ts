@@ -1,9 +1,8 @@
 import { getUserByClerkID } from "@/utils/auth";
 import { prisma } from "@/utils/db";
-import { error } from "console";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const user = await getUserByClerkID();
 
@@ -61,8 +60,8 @@ export async function GET(req: NextRequest) {
       history,
       isTrustedUser: user.isTrustedUser,
     });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { error: "Failed to fetch token usage data" },
       { status: 500 }
@@ -100,7 +99,7 @@ export async function PUT(req: NextRequest) {
         dailyTokenLimit: updatedUser.dailyTokenLimit,
       },
     });
-  } catch (e) {
+  } catch (error) {
     console.error("Error updating token limit:", error);
     return NextResponse.json(
       { error: "Failed to update token limit" },

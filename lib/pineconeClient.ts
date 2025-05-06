@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-import { Pinecone } from "@pinecone-database/pinecone";
+import { Pinecone, RecordMetadata } from "@pinecone-database/pinecone";
 
 dotenv.config();
 
@@ -44,14 +44,20 @@ export async function initPineconeIndex() {
   }
 }
 
-export async function upsertEmbeddings(embeddings: any[]) {
+export async function upsertEmbeddings(
+  embeddings: Array<{
+    id: string;
+    values: number[];
+    metadata: Record<string, unknown>;
+  }>
+) {
   try {
     const index = pc.index(PINECONE_INDEX_NAME);
 
-    const vectors = embeddings.map((item, i) => ({
+    const vectors = embeddings.map((item) => ({
       id: item.id,
       values: item.values,
-      metadata: item.metadata,
+      metadata: item.metadata as RecordMetadata,
     }));
 
     const batchSize = 100;
@@ -59,7 +65,7 @@ export async function upsertEmbeddings(embeddings: any[]) {
       const batch = vectors.slice(i, i + batchSize);
       await index.upsert(batch);
       console.log(
-        `Upserted batch ${i / batchSize + 1} of ${Math.ceil(
+        `Upserted batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(
           vectors.length / batchSize
         )}`
       );
@@ -80,7 +86,13 @@ export async function queryEmbeddings(
   try {
     const index = pc.index(PINECONE_INDEX_NAME);
 
-    const queryParams: any = {
+    const queryParams: {
+      vector: number[];
+      topK: number;
+      includeValues: boolean;
+      includeMetadata: boolean;
+      filter?: { score: { $gte: number } };
+    } = {
       vector: queryVector,
       topK: top_k,
       includeValues: false,
@@ -136,33 +148,30 @@ export async function deleteExistingData() {
   try {
     const index = pc.index(PINECONE_INDEX_NAME);
 
-    // Check if index exists first
     try {
       await index.describeIndexStats();
-    } catch (err) {
+    } catch (error) {
       console.log(
         "Index statistics not available, may need to create index first"
       );
-      return; // Skip deletion if index doesn't exist yet
+      return;
     }
 
-    // Try namespace-specific deletion first (more precise)
     try {
       await index.namespace("").deleteAll();
       console.log("Existing data deleted from default namespace");
       return;
-    } catch (namespaceErr) {
+    } catch (error) {
       console.log(
         "Namespace-specific deletion failed, trying filter-based deletion"
       );
     }
 
-    // Try filter-based deletion as fallback
     try {
       await index.deleteMany({});
       console.log("Existing data deleted using filter-based deletion");
-    } catch (filterErr) {
-      throw new Error(`Failed to delete data: ${filterErr}`);
+    } catch (error) {
+      throw new Error(`Failed to delete data: ${error}`);
     }
   } catch (error) {
     console.error("Error deleting existing data:", error);

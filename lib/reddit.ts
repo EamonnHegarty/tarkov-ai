@@ -87,18 +87,20 @@ export async function fetchTarkovContent(options: {
           break;
         }
 
-        const processedPosts = posts.map((post: any) => {
-          const title = post.data.title;
-          const selftext = post.data.selftext;
-          return {
-            id: post.data.id,
-            content: `${title}\n\n${selftext}`,
-          };
-        });
+        const processedPosts = posts.map(
+          (post: { data: { title: string; selftext: string; id: string } }) => {
+            const title = post.data.title;
+            const selftext = post.data.selftext;
+            return {
+              id: post.data.id,
+              content: `${title}\n\n${selftext}`,
+            };
+          }
+        );
 
         contentWithIds.push(...processedPosts);
         allContent.push(
-          ...processedPosts.map((p: { content: any }) => p.content)
+          ...processedPosts.map((p: { content: string }) => p.content)
         );
 
         console.log(
@@ -167,7 +169,7 @@ export async function fetchTarkovContent(options: {
             const commentsJson = await commentsResponse.json();
             const comments = extractComments(commentsJson[1].data.children, 2); // Limit depth to 2
             const processedComments = comments.map(
-              (comment: any) => comment.body
+              (comment: { body: string }) => comment.body
             );
             allContent.push(...processedComments);
 
@@ -187,17 +189,20 @@ export async function fetchTarkovContent(options: {
 }
 
 function extractComments(
-  commentNodes: any[],
+  commentNodes: Array<{
+    kind: string;
+    data: { body?: string; replies?: { data?: { children: [] } } };
+  }>,
   maxDepth: number = Infinity,
   currentDepth: number = 0
-): any[] {
-  const comments: any[] = [];
+): Array<{ body: string }> {
+  const comments: Array<{ body: string }> = [];
 
   if (currentDepth >= maxDepth) return comments;
 
   for (const node of commentNodes) {
-    if (node.kind === "t1") {
-      comments.push(node.data);
+    if (node.kind === "t1" && node.data.body) {
+      comments.push({ body: node.data.body });
 
       if (
         currentDepth < maxDepth - 1 &&

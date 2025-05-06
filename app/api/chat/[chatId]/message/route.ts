@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/utils/db";
-import { runAgent, simpleChat } from "@/app/api/ai/agent";
+import { simpleChat } from "@/app/api/ai/agent";
 import { getUserByClerkID } from "@/utils/auth";
 import {
   checkTokenLimit,
