@@ -432,10 +432,12 @@ const ChatConversationPage: React.FC = () => {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your message..."
               className="resize-none min-h-[56px] max-h-[200px] w-full bg-background-2 border-[#444] focus:border-tarkov-secondary text-text rounded-md py-3 pr-12"
-              onKeyDown={(e) => {
+              onKeyDown={(e: React.KeyboardEvent) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  handleSubmit(e as any);
+                  handleSubmit(
+                    e as unknown as React.FormEvent<HTMLFormElement>
+                  );
                 }
               }}
             />
