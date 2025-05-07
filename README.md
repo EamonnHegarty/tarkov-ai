@@ -12,6 +12,7 @@ This version 1 of the readme serves as a guide for what I want to build and how 
    - [2. Data Ingestion & Storage](#2-data-ingestion--storage)
    - [3. Visualizations & Analytics](#3-visualizations--analytics)
    - [4. Quest Flow Tracker](#4-quest-flow-tracker)
+   - [5. Advanced AI Tools](#5-advanced-ai-tools)
 3. [Tech Stack](#tech-stack)
 4. [Getting Started](#getting-started)
    - [Prerequisites](#prerequisites)
@@ -21,9 +22,10 @@ This version 1 of the readme serves as a guide for what I want to build and how 
    - [Data Pipeline](#data-pipeline)
    - [AI Processing](#ai-processing)
    - [Visualization Layer](#visualization-layer)
-6. [Future Ideas](#future-ideas)
-7. [Contributing](#contributing)
-8. [License](#license)
+6. [External APIs](#external-apis)
+7. [Future Ideas](#future-ideas)
+8. [Contributing](#contributing)
+9. [License](#license)
 
 ---
 
@@ -56,15 +58,22 @@ The main purpose of this app is to demonstrate how AI tooling (particularly LLMs
 ### 4. Quest Flow Tracker
 
 - **Quest Dependencies:** Provide a flowchart/graph of Tarkov quests, with pre-requisites and follow-up tasks.
-- **User State:** Users can select (or type) which quests they’ve completed or are currently on, and see what’s next.
-- **AI Assistance:** The system can leverage a knowledge base of quests so that if a user types “I completed Tarkov Shooter Pt. 3; what’s next?” the AI can provide the next quest steps or important items to keep in your stash.
+- **User State:** Users can select (or type) which quests they've completed or are currently on, and see what's next.
+- **AI Assistance:** The system can leverage a knowledge base of quests so that if a user types "I completed Tarkov Shooter Pt. 3; what's next?" the AI can provide the next quest steps or important items to keep in your stash.
+
+### 5. Advanced AI Tools
+
+- **Barter Trade Analysis:** Integration with the Tarkov.dev API to analyze profitable barter trades, helping players make informed economic decisions.
+- **Image Generation:** Visual aid generation for maps, weapon configurations, and other in-game elements.
+- **Reddit Data Analysis:** Real-time analysis of posts from the Tarkov subreddit to identify trends, issues, and community sentiment.
+- **AI-Driven Chart Generation:** Dynamic creation of data visualizations based on natural language queries.
 
 ## Tech Stack
 
 - **Frontend:** [Next.js](https://nextjs.org), React, TypeScript
 - **AI/LLM Integration:** [OpenAI API](https://platform.openai.com/docs/introduction) or other LLM service
 - **Data Storage:** Vector database Upstash
-- **Visualization:**Chart.js is most likely to be used
+- **Visualization:** Chart.js is most likely to be used
 - **Styling:** Tailwind CSS & Chadcn
 
 ## Getting Started
@@ -130,7 +139,7 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 ### AI Processing
 
 1. **User Query:**
-   - A user types a question: “What’s the sentiment on the latest wipe?”
+   - A user types a question: "What's the sentiment on the latest wipe?"
 2. **Vector Search:**
    - The system runs the user query through an embedding model, searches the vector DB for the closest matches, and returns relevant chunks of text.
 3. **LLM Answer Generation:**
@@ -142,7 +151,23 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 1. **Analytics Endpoint:**
    - Next.js API route aggregates data (e.g., daily post volumes, sentiment analysis results) into a format suitable for rendering.
 2. **Frontend Rendering:**
-   -Chart.js to visualize the aggregated data on charts, timelines, or heatmaps.
+   - Chart.js to visualize the aggregated data on charts, timelines, or heatmaps.
+
+---
+
+## External APIs
+
+This project integrates with several external APIs to enhance functionality:
+
+1. **Tarkov.dev API:** Used for the barter trade analysis tool, providing real-time data on item prices, barter trades, and market values. Special thanks to the [Tarkov.dev](https://tarkov.dev/) team for providing this free and comprehensive API.
+
+2. **OpenAI API:** Powers the core AI functionality, including:
+
+   - GPT models for conversational AI
+   - DALL-E for image generation
+   - Embeddings API for vector storage and retrieval
+
+3. **Reddit API:** Used to gather community discussions and sentiment from the Escape from Tarkov subreddit.
 
 ---
 
@@ -152,6 +177,9 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 - **Live Wipe-Related Stats**
 - **Quest Auto-Completion Suggestions**
 - **User-Submitted Data**
+- **Interactive Map Integration**
+- **Loadout Optimizer**
+- **Price Prediction Models**
 
 ---
 
