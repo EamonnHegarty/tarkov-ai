@@ -4,6 +4,7 @@ import {
   generateImageToolDefinition,
 } from "./tools/generateImage";
 import { reddit, redditToolDefinition } from "./tools/reddit";
+import { barterTrades, barterTradesToolDefinition } from "./tools/barterTrades";
 
 export const runTool = async (
   toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
@@ -20,6 +21,9 @@ export const runTool = async (
 
     case redditToolDefinition.name:
       return reddit(input);
+
+    case barterTradesToolDefinition.name:
+      return barterTrades(input);
 
     default:
       return `Never run this tool: ${toolCall.function.name} again, or else!`;
