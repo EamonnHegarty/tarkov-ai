@@ -57,7 +57,7 @@ The main purpose of this app is to demonstrate how AI tooling (particularly LLMs
 
 ### 4. Quest Flow Tracker
 
-- **Quest Dependencies:** Provide a flowchart/graph of Tarkov quests, with pre-requisites and follow-up tasks.
+- Upcoming feature!!
 - **User State:** Users can select (or type) which quests they've completed or are currently on, and see what's next.
 - **AI Assistance:** The system can leverage a knowledge base of quests so that if a user types "I completed Tarkov Shooter Pt. 3; what's next?" the AI can provide the next quest steps or important items to keep in your stash.
 
