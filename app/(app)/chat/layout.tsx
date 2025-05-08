@@ -1,36 +1,21 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { useGetChatsQuery } from "@/lib/store/services/chatApi";
-import { setChats, setRefreshChats } from "@/lib/store/features/chat/chatSlice";
 import { Button } from "@/components/ui/button";
 import { useRouter, useParams } from "next/navigation";
 import { PlusCircle, Menu, X, TerminalSquare } from "lucide-react";
 import { format } from "date-fns";
+import ChatListSkeleton from "./chat-list-skeleton";
 
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const params = useParams();
   const currentChatId = params?.id as string;
 
-  const { data, error, isLoading, refetch } = useGetChatsQuery();
-  const refreshChats = useAppSelector((state) => state.chat.refreshChats);
+  const { data: chats = [], error, isLoading, refetch } = useGetChatsQuery();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    if (refreshChats) {
-      refetch();
-      dispatch(setRefreshChats(false));
-    }
-  }, [dispatch, refetch, refreshChats]);
-
-  useEffect(() => {
-    if (data) {
-      dispatch(setChats(data));
-    }
-  }, [data, dispatch]);
 
   const handleNewChat = () => {
     router.push("/chat");
@@ -156,55 +141,42 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
-            <div className="p-4 space-y-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  className="h-12 bg-[#333] animate-pulse rounded-md"
-                ></div>
-              ))}
-            </div>
-          ) : data?.length ? (
+            <ChatListSkeleton />
+          ) : chats.length ? (
             <ul className="list-none">
-              {data.map(
-                (chat: {
-                  id: React.Key | null | undefined;
-                  title: string;
-                  createdAt: string | number | Date;
-                }) => (
-                  <li key={chat.id} className="border-b border-[#333]">
-                    <a
-                      href={`/chat/${chat.id}`}
-                      className={`block p-3 hover:bg-[#333] transition-colors duration-200 ${
-                        currentChatId === chat.id
-                          ? "bg-[#333] border-l-4 border-tarkov-secondary"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        if (window.innerWidth < 768) {
-                          setSidebarOpen(false);
-                        }
-                      }}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="text-tarkov-secondary mt-1">
-                          <TerminalSquare size={18} />
+              {chats.map((chat) => (
+                <li key={chat.id} className="border-b border-[#333]">
+                  <a
+                    href={`/chat/${chat.id}`}
+                    className={`block p-3 hover:bg-[#333] transition-colors duration-200 ${
+                      currentChatId === chat.id
+                        ? "bg-[#333] border-l-4 border-tarkov-secondary"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      if (window.innerWidth < 768) {
+                        setSidebarOpen(false);
+                      }
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="text-tarkov-secondary mt-1">
+                        <TerminalSquare size={18} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-text truncate">
+                          {chat.title}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-text truncate">
-                            {chat.title}
-                          </div>
-                          <div className="text-xs text-text-secondary">
-                            {chat.createdAt
-                              ? format(new Date(chat.createdAt), "MMM d, yyyy")
-                              : ""}
-                          </div>
+                        <div className="text-xs text-text-secondary">
+                          {chat.createdAt
+                            ? format(new Date(chat.createdAt), "MMM d, yyyy")
+                            : ""}
                         </div>
                       </div>
-                    </a>
-                  </li>
-                )
-              )}
+                    </div>
+                  </a>
+                </li>
+              ))}
             </ul>
           ) : (
             <div className="p-6 text-center">

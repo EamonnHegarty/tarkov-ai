@@ -1,8 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Progress } from "./ui/progress";
 import { cn } from "@/utils/cn";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useGetTokenUsageQuery } from "@/lib/store/services/userApi";
 
 interface TokenUsageProps {
   tokensUsed?: number;
@@ -12,16 +13,16 @@ interface TokenUsageProps {
 }
 
 export const TokenUsageMeter: React.FC<TokenUsageProps> = ({
-  tokensUsed = 0,
-  tokensRemaining = 10000,
-  tokenLimit = 10000,
+  tokensUsed,
+  tokensRemaining,
+  tokenLimit,
   defaultCollapsed = true,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
   const percentUsed = Math.min(
     100,
-    Math.round((tokensUsed / tokenLimit) * 100)
+    Math.round((tokensUsed! / tokenLimit!) * 100)
   );
 
   const getProgressColor = () => {
@@ -67,7 +68,7 @@ export const TokenUsageMeter: React.FC<TokenUsageProps> = ({
           <div className="flex justify-between items-center mb-2">
             <span className="text-text-secondary text-sm">Usage Details</span>
             <span className="text-tarkov-secondary font-medium">
-              {tokensUsed.toLocaleString()} / {tokenLimit.toLocaleString()}
+              {tokensUsed!.toLocaleString()} / {tokenLimit!.toLocaleString()}
             </span>
           </div>
 
@@ -83,7 +84,7 @@ export const TokenUsageMeter: React.FC<TokenUsageProps> = ({
           </div>
 
           <div className="mt-2 text-xs text-text-secondary text-right">
-            {tokensRemaining.toLocaleString()} tokens remaining today
+            {tokensRemaining!.toLocaleString()} tokens remaining today
           </div>
         </div>
       )}
@@ -92,49 +93,9 @@ export const TokenUsageMeter: React.FC<TokenUsageProps> = ({
 };
 
 export const TokenUsageDashboard: React.FC = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [usageData, setUsageData] = useState<{
-    tokensUsed: number;
-    tokensRemaining: number;
-    tokenLimit: number;
-  }>({
-    tokensUsed: 0,
-    tokensRemaining: 10000,
-    tokenLimit: 10000,
-  });
+  const { data, error, isLoading } = useGetTokenUsageQuery();
 
-  useEffect(() => {
-    async function fetchTokenUsage() {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/user/token-usage");
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch token usage data");
-        }
-
-        const data = await response.json();
-        setUsageData({
-          tokensUsed: data.tokensUsed,
-          tokensRemaining: data.tokensRemaining,
-          tokenLimit: data.tokenLimit,
-        });
-      } catch (err) {
-        console.error("Error fetching token usage:", err);
-        setError("Could not load token usage data");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchTokenUsage();
-
-    const interval = setInterval(fetchTokenUsage, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="animate-pulse bg-ai-chat-message-background p-4 rounded-md border border-[#444444] mb-4">
         <div className="h-4 bg-background-2 rounded w-1/3 mb-4"></div>
@@ -147,10 +108,21 @@ export const TokenUsageDashboard: React.FC = () => {
   if (error) {
     return (
       <div className="bg-[#3a1818] border border-[#5c2626] rounded-md p-4 mb-4">
-        <p className="text-[#e88888]">{error}</p>
+        <p className="text-[#e88888]">Failed to load token usage data</p>
       </div>
     );
   }
 
-  return <TokenUsageMeter {...usageData} defaultCollapsed={true} />;
+  if (!data) {
+    return null;
+  }
+
+  return (
+    <TokenUsageMeter
+      tokensUsed={data.tokensUsed}
+      tokensRemaining={data.tokensRemaining}
+      tokenLimit={data.tokenLimit}
+      defaultCollapsed={true}
+    />
+  );
 };

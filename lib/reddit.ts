@@ -167,7 +167,7 @@ export async function fetchTarkovContent(options: {
 
           if (commentsResponse.ok) {
             const commentsJson = await commentsResponse.json();
-            const comments = extractComments(commentsJson[1].data.children, 2); // Limit depth to 2
+            const comments = extractComments(commentsJson[1].data.children, 2);
             const processedComments = comments.map(
               (comment: { body: string }) => comment.body
             );

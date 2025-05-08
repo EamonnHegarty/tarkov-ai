@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   BarChart,
   Bar,
@@ -29,6 +29,8 @@ import {
   ErrorState,
 } from "./loading-state";
 import { TokenUsageMeter } from "@/components/TokensUsageDashboard";
+import { useGetAnalyticsResultsMutation } from "@/lib/store/services/analyticsApi";
+import { useGetTokenUsageQuery } from "@/lib/store/services/userApi";
 
 const CHART_COLORS = [
   "#cfa850",
@@ -47,9 +49,11 @@ export default function AnalyticsPage() {
     tokensUsed?: number;
     tokensRemaining?: number;
   } | null>(null);
-  const [tokenLimit, setTokenLimit] = useState<number>(10000);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  // Use RTK Query hooks
+  const { data: tokenUsageData } = useGetTokenUsageQuery();
+  const [getAnalyticsResults, { isLoading, error: analyticsError }] =
+    useGetAnalyticsResultsMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,47 +63,22 @@ export default function AnalyticsPage() {
   };
 
   const executeQuery = async (queryText: string) => {
-    setLoading(true);
-    setError(null);
     setQuery(queryText);
 
     try {
-      const response = await fetch("/api/analytics", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: queryText }),
-      });
+      const analyticsData = await getAnalyticsResults({
+        prompt: queryText,
+      }).unwrap();
 
-      if (!response.ok) {
-        const errorData = await response.json();
-
-        if (
-          response.status === 429 &&
-          errorData.error === "Daily token limit exceeded"
-        ) {
-          setError(
-            errorData.message ||
-              "Daily token limit exceeded. Please try again tomorrow."
-          );
-          setLoading(false);
-          return;
-        }
-
-        throw new Error(errorData.error || "Failed to fetch analytics data");
-      }
-
-      const data = await response.json();
       setResult({
-        answer: data.answer,
-        charts: data.charts,
-        tokensUsed: data.tokensUsed,
-        tokensRemaining: data.tokensRemaining,
+        answer: analyticsData.answer,
+        charts: analyticsData.charts,
+        tokensUsed: analyticsData.tokensUsed,
+        tokensRemaining: analyticsData.tokensRemaining,
       });
     } catch (err) {
       console.error("Analytics query error:", err);
-      setError(err instanceof Error ? err.message : "Unknown error occurred");
-    } finally {
-      setLoading(false);
+      // Error is handled by RTK Query
     }
   };
 
@@ -113,15 +92,6 @@ export default function AnalyticsPage() {
     // For 5-6 charts: 3 columns with 2 rows
     return "col-span-12 md:col-span-6 lg:col-span-4";
   };
-
-  useEffect(() => {
-    fetch("/api/user/token-usage")
-      .then((res) => res.json())
-      .then((data) => {
-        setTokenLimit(data.tokenLimit);
-      })
-      .catch((e) => console.error("Failed to fetch token limit:", e));
-  }, []);
 
   const renderChart = (chart: ChartSpec) => {
     const formattedData = chart.data.map((point) => ({
@@ -298,6 +268,15 @@ export default function AnalyticsPage() {
     }
   };
 
+  const errorMessage = analyticsError
+    ? "isError" in analyticsError
+      ? "Daily token limit exceeded. Please try again tomorrow."
+      : "data" in analyticsError
+      ? (analyticsError.data as { message?: string })?.message ||
+        "Failed to fetch analytics data"
+      : "An error occurred while fetching analytics data"
+    : null;
+
   return (
     <div className="container max-w-7xl mx-auto py-4">
       <div className="mb-8">
@@ -318,10 +297,10 @@ export default function AnalyticsPage() {
           />
           <Button
             type="submit"
-            disabled={loading}
+            disabled={isLoading}
             className="bg-tarkov-secondary text-black hover:bg-tarkov-secondary/80 px-6"
           >
-            {loading ? (
+            {isLoading ? (
               <div className="flex items-center">
                 <div className="animate-spin mr-2 h-4 w-4 border-b-2 border-black rounded-full"></div>
                 <span>Analyzing</span>
@@ -337,18 +316,18 @@ export default function AnalyticsPage() {
             <TokenUsageMeter
               tokensUsed={result.tokensUsed}
               tokensRemaining={result.tokensRemaining}
-              tokenLimit={tokenLimit}
+              tokenLimit={tokenUsageData?.tokenLimit || 10000}
               defaultCollapsed={true}
             />
           </div>
         )}
       </div>
 
-      {error && <ErrorState message={error} />}
+      {errorMessage && <ErrorState message={errorMessage} />}
 
-      {loading && <ChartLoadingState />}
+      {isLoading && <ChartLoadingState />}
 
-      {result && !loading && (
+      {result && !isLoading && (
         <div className="space-y-6">
           <div className="bg-ai-chat-message-background p-6 rounded-md border border-[#444444]">
             <h2 className="text-2xl font-bold text-tarkov-secondary mb-2">
@@ -445,7 +424,7 @@ export default function AnalyticsPage() {
           )}
         </div>
       )}
-      {!result && !loading && (
+      {!result && !isLoading && (
         <EmptyAnalyticsState onExampleClick={executeQuery} />
       )}
     </div>

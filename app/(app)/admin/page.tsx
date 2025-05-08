@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,70 +28,27 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
-
-type User = {
-  id: string;
-  email: string;
-  dailyTokenLimit: number;
-  isTrustedUser: boolean;
-  tokensUsedToday: number;
-};
+import {
+  useGetAllUsersQuery,
+  useUpdateTokenLimitMutation,
+  useUpdateTrustedStatusMutation,
+} from "@/lib/store/services/userApi";
 
 export default function AdminPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [newLimit, setNewLimit] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  useEffect(() => {
-    async function fetchUsers() {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/admin/users");
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch users");
-        }
-
-        const data = await response.json();
-        setUsers(data.users);
-      } catch (err) {
-        console.error("Error fetching users:", err);
-        setError(
-          "Could not load user data. You may not have admin privileges."
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchUsers();
-  }, []);
+  const { data, isLoading, error } = useGetAllUsersQuery();
+  const [updateTokenLimit] = useUpdateTokenLimitMutation();
+  const [updateTrustedStatus] = useUpdateTrustedStatusMutation();
 
   const handleUpdateLimit = async (userId: string) => {
     try {
-      const response = await fetch("/api/user/token-usage", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId,
-          newLimit,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update token limit");
-      }
-
-      setUsers(
-        users.map((user) =>
-          user.id === userId ? { ...user, dailyTokenLimit: newLimit } : user
-        )
-      );
+      await updateTokenLimit({
+        userId,
+        newLimit,
+      }).unwrap();
 
       setEditingUser(null);
       setNewLimit(0);
@@ -108,25 +65,10 @@ export default function AdminPage() {
     currentStatus: boolean
   ) => {
     try {
-      const response = await fetch("/api/admin/users/trusted-status", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId,
-          isTrustedUser: !currentStatus,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update trusted status");
-      }
-      setUsers(
-        users.map((user) =>
-          user.id === userId ? { ...user, isTrustedUser: !currentStatus } : user
-        )
-      );
+      await updateTrustedStatus({
+        userId,
+        isTrustedUser: !currentStatus,
+      }).unwrap();
 
       toast.success("User status updated successfully");
     } catch (err) {
@@ -135,11 +77,12 @@ export default function AdminPage() {
     }
   };
 
+  const users = data?.users || [];
   const filteredUsers = users.filter((user) =>
     user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container max-w-7xl mx-auto p-4 space-y-6">
         <Card>
@@ -185,7 +128,9 @@ export default function AdminPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-destructive">{error}</p>
+            <p className="text-destructive">
+              Could not load user data. You may not have admin privileges.
+            </p>
           </CardContent>
         </Card>
       </div>

@@ -9,73 +9,36 @@ import { Send, Loader2, Copy, Share2, Trash } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { TokenUsageMeter } from "@/components/TokensUsageDashboard";
-
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  createdAt: string;
-}
-
-interface TokenUsage {
-  tokensUsed: number;
-  tokensRemaining: number;
-  tokenLimit: number;
-}
+import {
+  useGetChatMessagesQuery,
+  useSendMessageMutation,
+} from "@/lib/store/services/chatApi";
+import { useGetTokenUsageQuery } from "@/lib/store/services/userApi";
 
 const ChatConversationPage: React.FC = () => {
   const { id: chatId } = useParams();
   const router = useRouter();
 
-  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isFetching, setIsFetching] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
+
+  const {
+    data: messages = [],
+    isLoading: isMessagesLoading,
+    error: messagesError,
+  } = useGetChatMessagesQuery(chatId as string);
+
+  const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
+  const { data: tokenUsage } = useGetTokenUsageQuery();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (!chatId) return;
-
-    setIsFetching(true);
-    setError(null);
-
-    fetch(`/api/chat/${chatId}/message`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to load conversation");
-        return res.json();
-      })
-      .then((data: Message[]) => {
-        setMessages(data);
-        setIsFetching(false);
-      })
-      .catch((e) => {
-        console.error(e);
-        setError("Failed to load conversation. Please try again.");
-        setIsFetching(false);
-      });
-
-    fetch("/api/user/token-usage")
-      .then((res) => res.json())
-      .then((data) => {
-        setTokenUsage({
-          tokensUsed: data.tokensUsed,
-          tokensRemaining: data.tokensRemaining,
-          tokenLimit: data.tokenLimit,
-        });
-      })
-      .catch((e) => console.error("Failed to fetch token usage:", e));
-  }, [chatId]);
-
-  useEffect(() => {
-    if (!isFetching) {
+    if (!isMessagesLoading) {
       scrollToBottom();
     }
-  }, [messages, isFetching]);
+  }, [messages, isMessagesLoading]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -93,93 +56,27 @@ const ChatConversationPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isSending) return;
 
     const userMessage = input.trim();
     setInput("");
-    setIsLoading(true);
-
-    const tempUserMessage: Message = {
-      id: `temp-${Date.now()}`,
-      role: "user",
-      content: userMessage,
-      createdAt: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [...prev, tempUserMessage]);
-
-    setTimeout(scrollToBottom, 100);
 
     try {
-      const res = await fetch(`/api/chat/${chatId}/message`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userMessage }),
-      });
+      await sendMessage({
+        chatId: chatId as string,
+        request: { userMessage },
+      }).unwrap();
 
-      if (!res.ok) {
-        const errorData = await res.json();
+      setTimeout(scrollToBottom, 100);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Error sending message:", error);
 
-        if (
-          res.status === 429 &&
-          errorData.error === "Daily token limit exceeded"
-        ) {
-          toast.error(errorData.message || "Daily token limit exceeded");
-          setMessages((prev) =>
-            prev.filter((msg) => msg.id !== tempUserMessage.id)
-          );
-
-          if (errorData.remaining !== undefined) {
-            setTokenUsage((prevUsage) =>
-              prevUsage
-                ? {
-                    ...prevUsage,
-                    tokensRemaining: errorData.remaining,
-                  }
-                : null
-            );
-          }
-
-          setIsLoading(false);
-          return;
-        }
-
-        throw new Error("Error sending message");
+      if (error?.status === 429) {
+        toast.error(error?.data?.message || "Daily token limit exceeded");
+      } else {
+        toast.error("Failed to send message. Please try again.");
       }
-
-      const data = (await res.json()) as {
-        userMessage: Message;
-        assistantMessage: Message;
-        tokensUsed?: number;
-        tokensRemaining?: number;
-      };
-
-      setMessages((prev) =>
-        prev
-          .filter((msg) => msg.id !== tempUserMessage.id)
-          .concat([data.userMessage, data.assistantMessage])
-      );
-
-      if (
-        data.tokensUsed !== undefined &&
-        data.tokensRemaining !== undefined &&
-        tokenUsage
-      ) {
-        setTokenUsage({
-          ...tokenUsage,
-          tokensUsed: tokenUsage.tokensUsed + data.tokensUsed,
-          tokensRemaining: data.tokensRemaining,
-        });
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to send message. Please try again.");
-
-      setMessages((prev) =>
-        prev.filter((msg) => msg.id !== tempUserMessage.id)
-      );
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -199,7 +96,7 @@ const ChatConversationPage: React.FC = () => {
     }
   };
 
-  if (error) {
+  if (messagesError) {
     return (
       <div className="flex flex-col h-full items-center justify-center p-4 md:p-8">
         <div className="bg-ai-chat-message-background p-6 rounded-lg border border-[#444] max-w-md w-full text-center">
@@ -223,7 +120,9 @@ const ChatConversationPage: React.FC = () => {
           <h2 className="text-xl font-bold text-tarkov-secondary mb-2">
             Communication Error
           </h2>
-          <p className="text-text-secondary mb-4">{error}</p>
+          <p className="text-text-secondary mb-4">
+            Failed to load conversation. Please try again.
+          </p>
           <div className="flex space-x-3 justify-center">
             <Button
               onClick={() => router.push("/chat")}
@@ -244,7 +143,7 @@ const ChatConversationPage: React.FC = () => {
     );
   }
 
-  if (isFetching) {
+  if (isMessagesLoading) {
     return (
       <div className="flex flex-col h-full items-center justify-center">
         <div className="flex flex-col items-center">
@@ -371,7 +270,7 @@ const ChatConversationPage: React.FC = () => {
                         ) : (
                           <div className="prose prose-invert max-w-none text-text prose-headings:text-tarkov-secondary prose-a:text-tarkov-secondary prose-p:break-words">
                             <Markdown>
-                              {isLastMessage && isLoading
+                              {isLastMessage && isSending
                                 ? "Generating response..."
                                 : msg.content}
                             </Markdown>
@@ -397,7 +296,7 @@ const ChatConversationPage: React.FC = () => {
                 </div>
               );
             })}
-            {isLoading && !messages.some((msg) => msg.id === "temp") && (
+            {isSending && (
               <div className="flex justify-start ml-2">
                 <div className="bg-ai-chat-message-background border border-[#444] text-text-secondary rounded-lg rounded-tl-none px-4 py-3 shadow-md flex items-center space-x-2">
                   <div className="flex space-x-1">
@@ -444,10 +343,10 @@ const ChatConversationPage: React.FC = () => {
             <Button
               type="submit"
               size="icon"
-              disabled={isLoading || !input.trim()}
+              disabled={isSending || !input.trim()}
               className="absolute right-2 bottom-2 bg-tarkov-secondary text-black hover:bg-tarkov-secondary/80 h-8 w-8"
             >
-              {isLoading ? (
+              {isSending ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <Send className="h-5 w-5" />

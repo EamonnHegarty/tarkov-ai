@@ -4,8 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { setRefreshChats } from "@/lib/store/features/chat/chatSlice";
-import { useAppDispatch } from "@/lib/store/hooks";
 import { useCreateChatMutation } from "@/lib/store/services/chatApi";
 import {
   Loader2,
@@ -19,11 +17,11 @@ import {
 } from "lucide-react";
 
 export default function NewChatPage() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const [input, setInput] = useState("");
-  const [createChat, { isLoading }] = useCreateChatMutation();
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+
+  const [createChat, { isLoading }] = useCreateChatMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +29,6 @@ export default function NewChatPage() {
 
     try {
       const response = await createChat({ userMessage: input }).unwrap();
-      dispatch(setRefreshChats(true));
       router.push(`/chat/${response.id}`);
     } catch (error) {
       console.error("Error creating chat:", error);
