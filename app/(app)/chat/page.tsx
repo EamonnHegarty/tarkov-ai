@@ -15,7 +15,7 @@ import {
   Landmark,
   Hexagon,
   MapPin,
-  Compass,
+  ClipboardList,
 } from "lucide-react";
 
 export default function NewChatPage() {
@@ -55,8 +55,8 @@ export default function NewChatPage() {
     {
       id: "quests",
       label: "Quests & Tasks",
-      icon: <Compass size={20} />,
-      prompt: "I need help with Prapor's first quest. What should I know?",
+      icon: <ClipboardList size={20} />,
+      prompt: "How do I complete the Debut quest from Prapor?",
     },
     {
       id: "economy",

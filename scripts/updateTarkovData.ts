@@ -1,8 +1,4 @@
-import {
-  initPineconeIndex,
-  upsertEmbeddings,
-  // deleteExistingData,
-} from "@/lib/pineconeClient";
+import { initPineconeIndex, upsertEmbeddings } from "@/lib/pineconeClient";
 import { fetchTarkovContent } from "../lib/reddit";
 import { OpenAIEmbeddings } from "@langchain/openai";
 
@@ -10,9 +6,6 @@ async function updateTarkovData() {
   console.log("Starting Tarkov data update process...");
 
   await initPineconeIndex();
-
-  // console.log("Deleting existing data from Pinecone index...");
-  // await deleteExistingData();
 
   console.log("Fetching new content...");
 
