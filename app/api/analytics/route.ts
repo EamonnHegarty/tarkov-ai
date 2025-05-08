@@ -41,13 +41,17 @@ export async function POST(req: NextRequest) {
       prompt.toLowerCase().includes("detailed") ||
       prompt.toLowerCase().includes("in-depth");
 
-    const maxSnippets = isComprehensiveQuery ? 100 : isSpecificQuery ? 50 : 30;
-    const relevanceThreshold = isComprehensiveQuery ? 0.6 : 0.7;
-    const tokenMultiplier = isComprehensiveQuery
-      ? 20
+    const maxSnippets = isComprehensiveQuery
+      ? 250
       : isSpecificQuery
-      ? 18
-      : 15;
+      ? 150
+      : 100;
+    const relevanceThreshold = isComprehensiveQuery ? 0.5 : 0.6;
+    const tokenMultiplier = isComprehensiveQuery
+      ? 25
+      : isSpecificQuery
+      ? 20
+      : 18;
     const estimatedTokens = estimateTokens(prompt) * tokenMultiplier;
 
     const { canProceed, remaining } = await checkTokenLimit(
@@ -73,7 +77,7 @@ export async function POST(req: NextRequest) {
     const vector = await new OpenAIEmbeddings().embedQuery(prompt);
 
     console.log("Querying Pinecone for relevant content");
-    const vectorQueryLimit = maxSnippets * 2;
+    const vectorQueryLimit = maxSnippets * 3;
     const rawResults = await queryEmbeddings(vector, vectorQueryLimit);
 
     if (!rawResults || rawResults.length === 0) {
@@ -110,7 +114,7 @@ export async function POST(req: NextRequest) {
       `Found ${snippets.length} relevant content snippets out of ${rawResults.length} matches`
     );
 
-    const minSnippets = Math.min(10, rawResults.length);
+    const minSnippets = Math.min(30, rawResults.length);
     if (snippets.length < minSnippets) {
       console.log(
         `Adding lower relevance results to reach minimum of ${minSnippets} snippets`
@@ -276,7 +280,7 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
       data: ChartDataPoint[];
     }
 
-    const maxCharts = isComprehensiveQuery ? 8 : 6;
+    const maxCharts = isComprehensiveQuery ? 10 : 8;
 
     const validatedCharts: Chart[] = parsed.charts
       .filter((chart: Chart) => {
