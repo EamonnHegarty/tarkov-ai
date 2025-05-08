@@ -50,7 +50,6 @@ export default function AnalyticsPage() {
     tokensRemaining?: number;
   } | null>(null);
 
-  // Use RTK Query hooks
   const { data: tokenUsageData } = useGetTokenUsageQuery();
   const [getAnalyticsResults, { isLoading, error: analyticsError }] =
     useGetAnalyticsResultsMutation();
@@ -78,7 +77,6 @@ export default function AnalyticsPage() {
       });
     } catch (err) {
       console.error("Analytics query error:", err);
-      // Error is handled by RTK Query
     }
   };
 
