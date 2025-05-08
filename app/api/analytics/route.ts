@@ -8,6 +8,7 @@ import {
   updateTokenUsage,
 } from "@/middleware/tokenLimits";
 import { getUserByClerkID } from "@/utils/auth";
+import { ChartSpec, DataPoint } from "@/types/analytics";
 
 const openai = new OpenAI();
 
@@ -267,23 +268,10 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
       );
     }
 
-    interface ChartDataPoint {
-      x: string | number;
-      y: number;
-    }
-
-    interface Chart {
-      type: "bar" | "line" | "pie" | "scatter" | "heatmap";
-      title: string;
-      xAxis: string;
-      yAxis: string;
-      data: ChartDataPoint[];
-    }
-
     const maxCharts = isComprehensiveQuery ? 10 : 8;
 
-    const validatedCharts: Chart[] = parsed.charts
-      .filter((chart: Chart) => {
+    const validatedCharts: ChartSpec[] = parsed.charts
+      .filter((chart: ChartSpec) => {
         return (
           chart &&
           typeof chart.type === "string" &&
@@ -292,7 +280,7 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
           typeof chart.yAxis === "string" &&
           Array.isArray(chart.data) &&
           chart.data.every(
-            (point: ChartDataPoint) =>
+            (point: DataPoint) =>
               point &&
               (typeof point.x === "string" || typeof point.x === "number") &&
               typeof point.y === "number"
