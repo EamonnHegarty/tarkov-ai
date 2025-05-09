@@ -20,6 +20,8 @@ model User {
   tokenUsage      TokenUsage[]
   dailyTokenLimit Int          @default(10000)
   isTrustedUser   Boolean      @default(false)
+
+  questStatuses UserQuestStatus[]
 }
 
 model Chat {
@@ -66,4 +68,21 @@ model TokenUsage {
   @@unique([userId, date])
   @@index([userId])
   @@index([date])
+}
+
+model UserQuestStatus {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questId   String  
+  status    String   @default("NOT_STARTED") 
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+
+  @@unique([userId, questId])
+  @@index([userId])
+  @@index([questId])
+  @@index([status])
 }

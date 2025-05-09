@@ -86,7 +86,6 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="h-[calc(100vh-6rem)] flex flex-col md:flex-row">
-      {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b border-[#333] bg-background-2">
         <Button
           variant="ghost"
