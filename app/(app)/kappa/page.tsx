@@ -14,7 +14,6 @@ import {
 import { QuestChat } from "../../../components/QuestChat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import {
   Select,
@@ -26,7 +25,6 @@ import {
 import {
   Loader2,
   Check,
-  X,
   AlertTriangle,
   Search,
   RefreshCw,
@@ -42,10 +40,9 @@ const KappaPage = () => {
     trader: "all",
     status: "all",
     mapFilter: "all",
-    kappaOnly: true,
+    kappaOnly: false,
     searchQuery: "",
   });
-  const [viewMode, setViewMode] = useState<"all" | "kappa">("kappa");
   const [showFilters, setShowFilters] = useState(false);
 
   const {
@@ -80,6 +77,10 @@ const KappaPage = () => {
         questId,
         status,
       }).unwrap();
+
+      toast.success(
+        `Quest status updated to ${status.replace("_", " ").toLowerCase()}`
+      );
     } catch (error) {
       console.error("Failed to update quest status:", error);
       toast.error("Failed to update quest status on the server");
@@ -100,10 +101,6 @@ const KappaPage = () => {
   const kappaProgress = kappaUtils.calculateKappaProgress(completedQuestIds);
 
   const filteredQuests = KAPPA_QUESTS.filter((quest) => {
-    if (viewMode === "kappa" && !quest.kappaRequired) {
-      return false;
-    }
-
     if (filters.kappaOnly && !quest.kappaRequired) {
       return false;
     }
@@ -241,39 +238,6 @@ const KappaPage = () => {
       </div>
 
       <div className="bg-ai-chat-message-background rounded-lg border border-[#444444] p-4">
-        <div className="flex justify-between items-center mb-3">
-          <div className="flex gap-2">
-            <Button
-              variant={viewMode === "all" ? "secondary" : "outline"}
-              size="sm"
-              onClick={() => setViewMode("all")}
-              className={
-                viewMode === "all" ? "bg-tarkov-secondary/20 text-text" : ""
-              }
-            >
-              All Quests
-            </Button>
-            <Button
-              variant={viewMode === "kappa" ? "secondary" : "outline"}
-              size="sm"
-              onClick={() => setViewMode("kappa")}
-              className={
-                viewMode === "kappa" ? "bg-tarkov-secondary/20 text-text" : ""
-              }
-            >
-              Kappa Only
-            </Button>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleFilters}
-            className="md:hidden"
-          >
-            <Filter className="h-4 w-4 mr-1" />
-            Filters
-          </Button>
-        </div>
         <div className="relative mb-4">
           <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
@@ -285,6 +249,17 @@ const KappaPage = () => {
             }
             className="pl-8 bg-background-2 border-[#444] text-sm"
           />
+        </div>
+        <div className="flex justify-between items-center mb-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleFilters}
+            className="md:hidden"
+          >
+            <Filter className="h-4 w-4 mr-1" />
+            Filters
+          </Button>
         </div>
         <div className={`md:block ${showFilters ? "block" : "hidden"} mb-4`}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -375,18 +350,6 @@ const KappaPage = () => {
               </Select>
             </div>
           </div>
-          <div className="flex items-center space-x-2 mt-3">
-            <Checkbox
-              id="kappa-only"
-              checked={filters.kappaOnly}
-              onCheckedChange={(checked) =>
-                setFilters({ ...filters, kappaOnly: !!checked })
-              }
-            />
-            <label htmlFor="kappa-only" className="text-sm cursor-pointer">
-              Kappa-Required Only
-            </label>
-          </div>
         </div>
         <div className="mt-4">
           <ScrollArea className="h-[calc(100vh-28rem)]">
@@ -453,11 +416,7 @@ const KappaPage = () => {
                             <div className="w-6 h-6 rounded-full bg-tarkov-secondary/20 flex items-center justify-center">
                               <Loader2 className="h-4 w-4 text-tarkov-secondary animate-spin" />
                             </div>
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-background flex items-center justify-center border border-[#444444]">
-                              <X className="h-3 w-3 text-text-secondary" />
-                            </div>
-                          )}
+                          ) : null}
                         </div>
                       </div>
                       <div className="flex mt-2 gap-1">
