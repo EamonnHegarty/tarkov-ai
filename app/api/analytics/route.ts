@@ -12,6 +12,12 @@ import { ChartSpec, DataPoint } from "@/types/analytics";
 
 const openai = new OpenAI();
 
+// Constants
+const MAX_SNIPPETS = 100;
+const RELEVANCE_THRESHOLD = 0.5;
+const TOKEN_MULTIPLIER = 25;
+const MIN_CONTENT_LENGTH = 20;
+
 /**
  * Analytics API endpoint for Tarkov subreddit data
  *
@@ -31,29 +37,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const isComprehensiveQuery =
-      prompt.toLowerCase().includes("comprehensive") ||
-      prompt.toLowerCase().includes("all") ||
-      prompt.toLowerCase().includes("every") ||
-      prompt.toLowerCase().includes("complete");
-
-    const isSpecificQuery =
-      prompt.toLowerCase().includes("specific") ||
-      prompt.toLowerCase().includes("detailed") ||
-      prompt.toLowerCase().includes("in-depth");
-
-    const maxSnippets = isComprehensiveQuery
-      ? 250
-      : isSpecificQuery
-      ? 150
-      : 100;
-    const relevanceThreshold = isComprehensiveQuery ? 0.5 : 0.6;
-    const tokenMultiplier = isComprehensiveQuery
-      ? 25
-      : isSpecificQuery
-      ? 20
-      : 18;
-    const estimatedTokens = estimateTokens(prompt) * tokenMultiplier;
+    // Simplified token estimation
+    const estimatedTokens = estimateTokens(prompt) * TOKEN_MULTIPLIER;
 
     const { canProceed, remaining } = await checkTokenLimit(
       req,
@@ -78,7 +63,8 @@ export async function POST(req: NextRequest) {
     const vector = await new OpenAIEmbeddings().embedQuery(prompt);
 
     console.log("Querying Pinecone for relevant content");
-    const vectorQueryLimit = maxSnippets * 3;
+    // Request 3x the maximum to ensure we have enough high-quality matches
+    const vectorQueryLimit = MAX_SNIPPETS * 3;
     const rawResults = await queryEmbeddings(vector, vectorQueryLimit);
 
     if (!rawResults || rawResults.length === 0) {
@@ -89,49 +75,47 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Collect unique, relevant snippets
     const seen = new Set<string>();
     const snippets: string[] = [];
-    const minContentLength = 20;
 
+    // First pass: collect high-relevance snippets
     for (const match of rawResults) {
       const txt: string =
         typeof match?.metadata?.content === "string"
           ? match.metadata.content
           : "";
 
-      if (!txt || txt.length < minContentLength) continue;
+      if (!txt || txt.length < MIN_CONTENT_LENGTH) continue;
 
       const score = match.score ?? 0;
 
-      if (score >= relevanceThreshold && !seen.has(txt)) {
+      if (score >= RELEVANCE_THRESHOLD && !seen.has(txt)) {
         seen.add(txt);
         snippets.push(txt);
       }
 
-      if (seen.size >= maxSnippets) break;
+      if (seen.size >= MAX_SNIPPETS) break;
     }
 
     console.log(
       `Found ${snippets.length} relevant content snippets out of ${rawResults.length} matches`
     );
 
-    const minSnippets = Math.min(30, rawResults.length);
-    if (snippets.length < minSnippets) {
-      console.log(
-        `Adding lower relevance results to reach minimum of ${minSnippets} snippets`
-      );
+    // If we don't have enough high-relevance snippets, add lower-relevance ones
+    if (snippets.length < Math.min(30, rawResults.length)) {
       for (const match of rawResults) {
         const txt: string =
           typeof match?.metadata?.content === "string"
             ? match.metadata.content
             : "";
 
-        if (txt && txt.length >= minContentLength && !seen.has(txt)) {
+        if (txt && txt.length >= MIN_CONTENT_LENGTH && !seen.has(txt)) {
           seen.add(txt);
           snippets.push(txt);
         }
 
-        if (seen.size >= minSnippets) break;
+        if (seen.size >= Math.min(30, rawResults.length)) break;
       }
     }
 
@@ -268,8 +252,7 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
       );
     }
 
-    const maxCharts = isComprehensiveQuery ? 10 : 8;
-
+    // Maximum of 10 charts
     const validatedCharts: ChartSpec[] = parsed.charts
       .filter((chart: ChartSpec) => {
         return (
@@ -287,7 +270,7 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
           )
         );
       })
-      .slice(0, maxCharts);
+      .slice(0, 10);
 
     return NextResponse.json({
       answer: parsed.answer,
@@ -297,11 +280,6 @@ FORMAT YOUR RESPONSE AS JSON using the generate_charts function.
       metadata: {
         snippetsAnalyzed: snippets.length,
         totalMatchesFound: rawResults.length,
-        queryType: isComprehensiveQuery
-          ? "comprehensive"
-          : isSpecificQuery
-          ? "specific"
-          : "standard",
       },
     });
   } catch (error) {

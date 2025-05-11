@@ -18,7 +18,7 @@ model User {
 
   chats           Chat[]
   tokenUsage      TokenUsage[]
-  dailyTokenLimit Int          @default(10000)
+  dailyTokenLimit Int          @default(25000)
   isTrustedUser   Boolean      @default(false)
 
   questStatuses UserQuestStatus[]

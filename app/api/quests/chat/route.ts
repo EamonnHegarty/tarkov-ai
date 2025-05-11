@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { openai } from "@/app/api/ai/ai";
 import { kappaUtils } from "@/lib/data/kappaQuestsHelpers";
 import { KAPPA_QUESTS } from "@/lib/data/kappaQuestsData";
+import { checkTokenLimit } from "@/middleware/tokenLimits";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,6 +16,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Message is required" },
         { status: 400 }
+      );
+    }
+
+    const { canProceed, remaining } = await checkTokenLimit(request);
+
+    if (!canProceed) {
+      return NextResponse.json(
+        {
+          error: "Daily token limit exceeded",
+          remaining,
+          message:
+            "You've reached your daily usage limit. Please try again tomorrow. You can still manually mark of quests",
+        },
+        { status: 429 }
       );
     }
 
