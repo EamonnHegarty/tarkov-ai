@@ -22,7 +22,7 @@ export const runLLM = async ({
     : undefined;
 
   const payload: any = {
-    model: "gpt-4o-mini",
+    model: "gpt-3.5-turbo",
     temperature: 0.1,
     messages,
   };
