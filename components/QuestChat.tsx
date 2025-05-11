@@ -90,21 +90,36 @@ export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
     } catch (error) {
       console.error("Error processing chat message:", error);
 
-      const errorMessage: Message = {
+      let errorMessage =
+        "Sorry, I couldn't process your request. Please try again.";
+
+      if (error && typeof error === "object" && "data" in error) {
+        const errorData = error.data as Record<string, unknown>;
+        if (typeof errorData.message === "string") {
+          errorMessage = errorData.message;
+        } else if (typeof errorData.error === "string") {
+          errorMessage = errorData.error;
+        }
+      }
+
+      const errorResponse: Message = {
         id: `error-${Date.now()}`,
-        content: "Sorry, I couldn't process your request. Please try again.",
+        content: errorMessage,
         sender: "assistant",
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, errorMessage]);
-      toast.error("Failed to process your message");
+      setMessages((prev) => [...prev, errorResponse]);
+
+      toast.error("Error", {
+        description: errorMessage,
+        duration: 5000,
+      });
     }
   };
 
   const formatResponseContent = (response: ResponseData): string => {
     const content = response.message;
-
     return content;
   };
 
