@@ -25,11 +25,13 @@ import {
   RefreshCw,
   CaseUpper,
   Filter,
+  Info,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { KAPPA_QUESTS, MAPS, TRADERS } from "@/lib/data/kappaQuestsData";
+import QuestModal, { QuestDetails } from "../../../components/QuestModal";
 
 const KappaPage = () => {
   const [filters, setFilters] = useState({
@@ -40,6 +42,8 @@ const KappaPage = () => {
     searchQuery: "",
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedQuest, setSelectedQuest] = useState<QuestDetails | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const {
     data: serverQuestStatus = {},
@@ -89,6 +93,15 @@ const KappaPage = () => {
     setShowFilters(!showFilters);
   };
 
+  const isNotStarted = (questId: string) => {
+    return !questStatus[questId] || questStatus[questId] === "NOT_STARTED";
+  };
+
+  const openQuestDetails = (quest: QuestDetails) => {
+    setSelectedQuest(quest);
+    setModalOpen(true);
+  };
+
   const completedQuestIds = Object.entries(questStatus)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .filter(([_, status]) => status === "COMPLETED")
@@ -101,11 +114,19 @@ const KappaPage = () => {
       return false;
     }
 
-    if (filters.trader !== "all" && quest.trader !== filters.trader) {
+    if (filters.status === "NOT_STARTED" && isNotStarted(quest.id)) {
+      return true;
+    }
+
+    if (
+      filters.status !== "all" &&
+      filters.status !== "NOT_STARTED" &&
+      questStatus[quest.id] !== filters.status
+    ) {
       return false;
     }
 
-    if (filters.status !== "all" && questStatus[quest.id] !== filters.status) {
+    if (filters.trader !== "all" && quest.trader !== filters.trader) {
       return false;
     }
 
@@ -379,7 +400,15 @@ const KappaPage = () => {
                       `}
                     >
                       <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
+                        <div
+                          className="flex-1 min-w-0 cursor-pointer"
+                          onClick={() =>
+                            openQuestDetails({
+                              ...quest,
+                              neededKeys: quest.neededKeys || undefined,
+                            })
+                          }
+                        >
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-base font-medium text-text truncate">
                               {quest.name}
@@ -392,6 +421,10 @@ const KappaPage = () => {
                                 Kappa
                               </Badge>
                             )}
+                            <Info
+                              size={16}
+                              className="text-text-secondary hover:text-tarkov-secondary"
+                            />
                           </div>
                           <div className="text-xs text-text-secondary mb-2">
                             <span className="font-medium">{quest.trader}</span>
@@ -416,6 +449,20 @@ const KappaPage = () => {
                         </div>
                       </div>
                       <div className="flex mt-2 gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            handleStatusChange(quest.id, "NOT_STARTED")
+                          }
+                          className={`flex-1 h-7 text-xs ${
+                            status === "NOT_STARTED"
+                              ? "bg-background-2/50 border-[#555555] text-text-secondary"
+                              : "bg-background border-[#444444]"
+                          }`}
+                        >
+                          Not Started
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
@@ -453,6 +500,12 @@ const KappaPage = () => {
           </ScrollArea>
         </div>
       </div>
+
+      <QuestModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        quest={selectedQuest}
+      />
     </div>
   );
 };

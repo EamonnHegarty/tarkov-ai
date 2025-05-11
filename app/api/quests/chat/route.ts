@@ -90,6 +90,9 @@ ${KAPPA_QUESTS.map((q: { name: any }) => q.name).join(", ")}
       }
     }
 
+    let responseMessage = "";
+    const autoCompletedQuests = [];
+
     if (updates.length > 0) {
       await prisma.$transaction(
         updates.map((update) =>
@@ -111,14 +114,115 @@ ${KAPPA_QUESTS.map((q: { name: any }) => q.name).join(", ")}
           })
         )
       );
+
+      const completedQuestIds = updates
+        .filter((update) => update.status === "COMPLETED")
+        .map((update) => update.questId);
+
+      const existingCompletedQuests = await prisma.userQuestStatus.findMany({
+        where: {
+          userId: user.id,
+          status: "COMPLETED",
+        },
+      });
+
+      existingCompletedQuests.forEach((quest) => {
+        if (!completedQuestIds.includes(quest.questId)) {
+          completedQuestIds.push(quest.questId);
+        }
+      });
+
+      const questMap = new Map();
+      KAPPA_QUESTS.forEach((quest) => {
+        questMap.set(quest.id, quest);
+      });
+
+      const prerequisiteMap = new Map();
+
+      async function findAllPrerequisites(
+        questId: string,
+        visited = new Set<string>()
+      ) {
+        if (visited.has(questId)) return;
+        visited.add(questId);
+
+        const quest = questMap.get(questId);
+
+        if (!quest) return;
+
+        if (quest.taskRequirements && quest.taskRequirements.length > 0) {
+          for (const prereq of quest.taskRequirements) {
+            const prereqQuest = KAPPA_QUESTS.find(
+              (q) => q.name === prereq.task.name
+            );
+
+            if (prereqQuest) {
+              const prereqStatus = await prisma.userQuestStatus.findUnique({
+                where: {
+                  userId_questId: {
+                    userId: user.id,
+                    questId: prereqQuest.id,
+                  },
+                },
+              });
+
+              if (!prereqStatus || prereqStatus.status !== "COMPLETED") {
+                prerequisiteMap.set(prereqQuest.id, prereqQuest.name);
+
+                await findAllPrerequisites(prereqQuest.id, visited);
+              }
+            }
+          }
+        }
+      }
+
+      for (const questId of completedQuestIds) {
+        await findAllPrerequisites(questId);
+      }
+
+      if (prerequisiteMap.size > 0) {
+        const prereqUpdates = [];
+
+        for (const [prereqId, prereqName] of prerequisiteMap.entries()) {
+          prereqUpdates.push(
+            prisma.userQuestStatus.upsert({
+              where: {
+                userId_questId: {
+                  userId: user.id,
+                  questId: prereqId,
+                },
+              },
+              update: {
+                status: "COMPLETED",
+              },
+              create: {
+                userId: user.id,
+                questId: prereqId,
+                status: "COMPLETED",
+              },
+            })
+          );
+          autoCompletedQuests.push(prereqName);
+        }
+
+        if (prereqUpdates.length > 0) {
+          await prisma.$transaction(prereqUpdates);
+        }
+      }
     }
 
-    let responseMessage = "";
     if (matchedQuestNames.length > 0) {
       responseMessage += `I've updated the following quests: ${matchedQuestNames.join(
         ", "
       )}. `;
     }
+
+    if (autoCompletedQuests.length > 0) {
+      responseMessage += `I've also automatically marked these prerequisite quests as completed: ${autoCompletedQuests.join(
+        ", "
+      )}. Please verify this is correct! `;
+    }
+
     if (unmatchedQuestNames.length > 0) {
       responseMessage += `I couldn't find these quests: ${unmatchedQuestNames.join(
         ", "
@@ -130,6 +234,7 @@ ${KAPPA_QUESTS.map((q: { name: any }) => q.name).join(", ")}
       updates: updates,
       matched: matchedQuestNames,
       unmatched: unmatchedQuestNames,
+      autoCompleted: autoCompletedQuests,
     });
   } catch (error) {
     console.error("Error processing chat message:", error);

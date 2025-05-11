@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useRef, useEffect } from "react";
 import { useProcessChatMessageMutation } from "@/lib/store/services/questApi";
 import { Button } from "@/components/ui/button";
@@ -6,11 +5,10 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Send,
   Loader2,
-  CheckCircle,
-  XCircle,
   MessageSquare,
   UserCircle,
   Bot,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -30,6 +28,7 @@ type ResponseData = {
   message: string;
   matched?: string[];
   unmatched?: string[];
+  autoCompleted?: string[];
 };
 
 export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
@@ -72,6 +71,17 @@ export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
         toast.success(`Updated ${result.matched.length} quest(s)`, {
           description: result.matched.join(", "),
         });
+
+        if (result.autoCompleted && result.autoCompleted.length > 0) {
+          toast.info(
+            `Auto-completed ${result.autoCompleted.length} prerequisite quest(s)`,
+            {
+              description: result.autoCompleted.join(", "),
+              icon: <AlertTriangle className="h-4 w-4 text-amber-500" />,
+              duration: 5000,
+            }
+          );
+        }
 
         if (onQuestUpdates) {
           onQuestUpdates();
@@ -218,37 +228,6 @@ export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
       {latestResponse && !isExpanded && (
         <div className="mb-4 bg-background-2 p-3 rounded-lg">
           <p className="text-text">{latestResponse.message}</p>
-
-          {(latestResponse.matched?.length || 0) > 0 && (
-            <div className="mt-3">
-              <div className="flex items-center text-green-500 mb-2">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                <span className="font-medium">Updated Quests</span>
-              </div>
-              <ul className="pl-6 space-y-1">
-                {latestResponse.matched?.map((questName, idx) => (
-                  <li key={idx} className="text-sm text-text-secondary">
-                    {questName}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {(latestResponse.unmatched?.length || 0) > 0 && (
-            <div className="mt-3">
-              <div className="flex items-center text-red-400 mb-2">
-                <XCircle className="h-4 w-4 mr-2" />
-                <span className="font-medium">Unrecognized Quests</span>
-              </div>
-              <ul className="pl-6 space-y-1">
-                {latestResponse.unmatched?.map((questName, idx) => (
-                  <li key={idx} className="text-sm text-text-secondary">
-                    {questName}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -258,7 +237,7 @@ export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Tell me which quests you've completed or are working on..."
+            placeholder="Tell me which quests you've completed or are working on. If a quest has pre requisites like I completed gunsmith 10 therefore 1-10 should be completed we will try auto mark these"
             className="min-h-[60px] pr-12 bg-background-2 border-[#444] text-text resize-none"
           />
           <Button

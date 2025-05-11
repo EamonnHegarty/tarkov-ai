@@ -21268,12 +21268,28 @@ export const ALL_QUESTS = [
   },
 ];
 
-export const KAPPA_QUESTS = ALL_QUESTS.filter(
-  (q) => q.kappaRequired
-).map(({ id, name, trader, map, kappaRequired }) => ({
-  id,
-  name,
-  trader: trader.name,
-  map: map?.name ?? null,
-  kappaRequired,
-}));
+export const KAPPA_QUESTS = ALL_QUESTS.filter((q) => q.kappaRequired).map(
+  ({
+    id,
+    name,
+    trader,
+    map,
+    kappaRequired,
+    objectives,
+    taskRequirements,
+    experience,
+    minPlayerLevel,
+    neededKeys,
+  }) => ({
+    id,
+    name,
+    trader: trader.name,
+    map: map?.name ?? null,
+    kappaRequired,
+    objectives,
+    taskRequirements,
+    experience,
+    minPlayerLevel,
+    neededKeys,
+  })
+);

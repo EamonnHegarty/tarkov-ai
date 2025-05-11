@@ -9,7 +9,12 @@ import {
   Share2,
 } from "lucide-react";
 
-export const SectionTitle = ({ icon, title }) => {
+interface SectionTitleProps {
+  icon: React.ReactNode;
+  title: string;
+}
+
+export const SectionTitle: React.FC<SectionTitleProps> = ({ icon, title }) => {
   return (
     <div className="mb-6 ">
       <div className="flex items-center">
@@ -20,7 +25,12 @@ export const SectionTitle = ({ icon, title }) => {
   );
 };
 
-export const SubSection = ({ title, children }) => {
+interface SubSectionProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+export const SubSection: React.FC<SubSectionProps> = ({ title, children }) => {
   return (
     <div className="mb-8">
       <h2 className="text-xl font-semibold text-tarkov-secondary mb-4">
@@ -31,7 +41,11 @@ export const SubSection = ({ title, children }) => {
   );
 };
 
-export const FeatureList = ({ items }) => {
+interface FeatureListProps {
+  items: string[];
+}
+
+export const FeatureList: React.FC<FeatureListProps> = ({ items }) => {
   return (
     <ul className="mt-4 space-y-2">
       {items.map((item, index) => (
@@ -44,7 +58,7 @@ export const FeatureList = ({ items }) => {
   );
 };
 
-const OverviewSection = () => {
+const OverviewSection: React.FC = () => {
   return (
     <div className="bg-ai-chat-message-background border border-[#444444] rounded-lg p-6">
       <SectionTitle
@@ -119,7 +133,7 @@ const OverviewSection = () => {
   );
 };
 
-const ChatSection = () => {
+const ChatSection: React.FC = () => {
   return (
     <div className="bg-ai-chat-message-background border border-[#444444] rounded-lg p-6">
       <SectionTitle
@@ -129,7 +143,7 @@ const ChatSection = () => {
 
       <div className="max-w-none mb-8">
         <p className="text-text-secondary">
-          The chat system uses OpenAI's models to provide contextual and
+          The chat system uses OpenAI&apos;s models to provide contextual and
           knowledgeable responses to questions about Escape from Tarkov. The
           system is designed to assist players with game mechanics, strategies,
           quest information, and more.
@@ -140,7 +154,7 @@ const ChatSection = () => {
         <p className="text-text-secondary">
           The chat functionality follows a client-server architecture where the
           frontend React components communicate with Next.js API routes, which
-          in turn interact with OpenAI's API and the database.
+          in turn interact with OpenAI&apos;s API and the database.
         </p>
       </SubSection>
 
@@ -167,7 +181,7 @@ const ChatSection = () => {
   );
 };
 
-const AnalyticsSection = () => {
+const AnalyticsSection: React.FC = () => {
   return (
     <div className="bg-ai-chat-message-background border border-[#444444] rounded-lg p-6">
       <SectionTitle
@@ -192,7 +206,7 @@ const AnalyticsSection = () => {
           </li>
           <li className="text-text-secondary">
             <strong className="text-text">Processing:</strong> Text is cleaned
-            and transformed into embeddings using OpenAI's embedding models
+            and transformed into embeddings using OpenAI&apos;s embedding models
           </li>
           <li className="text-text-secondary">
             <strong className="text-text">Storage:</strong> Embeddings are
@@ -225,7 +239,7 @@ const AnalyticsSection = () => {
   );
 };
 
-const DatabaseSection = () => {
+const DatabaseSection: React.FC = () => {
   return (
     <div className="bg-ai-chat-message-background border border-[#444444] rounded-lg p-6">
       <SectionTitle
@@ -263,7 +277,7 @@ const DatabaseSection = () => {
         <h3 className="font-medium text-text mt-4 mb-2">Embedding Process</h3>
         <ol className="list-decimal space-y-2 pl-5">
           <li className="text-text-secondary">
-            Text content is processed through OpenAI's embedding models
+            Text content is processed through OpenAI&apos;s embedding models
           </li>
           <li className="text-text-secondary">
             The resulting high-dimensional vectors (1536 dimensions) capture
@@ -283,7 +297,7 @@ const DatabaseSection = () => {
   );
 };
 
-const ToolsSection = () => {
+const ToolsSection: React.FC = () => {
   return (
     <div className="bg-ai-chat-message-background border border-[#444444] rounded-lg p-6">
       <SectionTitle
@@ -317,8 +331,8 @@ const ToolsSection = () => {
 
       <SubSection title="Image Generation">
         <p className="text-text-secondary">
-          Using OpenAI's DALL-E 3 model, the image generation tool allows users
-          to:
+          Using OpenAI&apos;s DALL-E 3 model, the image generation tool allows
+          users to:
         </p>
         <FeatureList
           items={[
@@ -348,7 +362,7 @@ const ToolsSection = () => {
   );
 };
 
-const AuthSection = () => {
+const AuthSection: React.FC = () => {
   return (
     <div className="bg-ai-chat-message-background border border-[#444444] rounded-lg p-6">
       <SectionTitle
@@ -367,7 +381,8 @@ const AuthSection = () => {
       <SubSection title="Authentication Flow">
         <ol className="list-decimal space-y-2 pl-5">
           <li className="text-text-secondary">
-            Users sign up or sign in through Clerk's authentication interface
+            Users sign up or sign in through Clerk&apos;s authentication
+            interface
           </li>
           <li className="text-text-secondary">
             On first login, a new user record is created in the PostgreSQL
@@ -413,7 +428,7 @@ const AuthSection = () => {
   );
 };
 
-const ApiSection = () => {
+const ApiSection: React.FC = () => {
   return (
     <div className="bg-ai-chat-message-background border border-[#444444] rounded-lg p-6">
       <SectionTitle
@@ -542,7 +557,13 @@ const ApiSection = () => {
   );
 };
 
-export const DocsContentSection = ({ activeSection }) => {
+interface DocsContentSectionProps {
+  activeSection: string;
+}
+
+export const DocsContentSection: React.FC<DocsContentSectionProps> = ({
+  activeSection,
+}) => {
   switch (activeSection) {
     case "overview":
       return <OverviewSection />;
@@ -562,3 +583,5 @@ export const DocsContentSection = ({ activeSection }) => {
       return <OverviewSection />;
   }
 };
+
+export default DocsContentSection;

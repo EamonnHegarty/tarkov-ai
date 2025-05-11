@@ -1,6 +1,37 @@
 import { QuestInfo } from "./interface/QuestInfo";
 import { KAPPA_QUESTS } from "./kappaQuestsData";
 
+export const findPrerequisiteQuests = (questName: string): string[] => {
+  const completedQuest = KAPPA_QUESTS.find(
+    (q) => q.name.toLowerCase() === questName.toLowerCase()
+  );
+
+  if (!completedQuest) return [];
+
+  const prerequisites: string[] = [];
+
+  const findPrereqs = (questId: string, visited = new Set<string>()) => {
+    if (visited.has(questId)) return;
+    visited.add(questId);
+
+    KAPPA_QUESTS.forEach((q) => {
+      if (q.taskRequirements) {
+        const isPrereq = q.taskRequirements.some(
+          (req) => req.task.name.toLowerCase() === questName.toLowerCase()
+        );
+
+        if (isPrereq && !prerequisites.includes(q.id)) {
+          prerequisites.push(q.id);
+          findPrereqs(q.id, visited);
+        }
+      }
+    });
+  };
+
+  findPrereqs(completedQuest.id);
+  return prerequisites;
+};
+
 export const kappaUtils = {
   getQuestsByTrader: (trader: string): QuestInfo[] => {
     return KAPPA_QUESTS.filter(

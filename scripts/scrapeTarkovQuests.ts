@@ -78,7 +78,6 @@ async function main() {
   const payload = quests.map((q, i) => {
     const txt = texts[i];
     const hash = generateContentHash(txt);
-    // build metadata, omitting `map` if null
     const metadata: Record<string, string> = {
       questName: q.name,
       questId: q.id,

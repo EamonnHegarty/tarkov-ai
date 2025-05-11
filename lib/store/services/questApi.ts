@@ -19,6 +19,7 @@ export interface ChatUpdateResponse {
   updates: QuestStatusUpdate[];
   matched: string[];
   unmatched: string[];
+  autoCompleted?: string[];
 }
 
 export const questApi = createApi({
