@@ -6,15 +6,8 @@ import { queryEmbeddings } from "@/lib/pineconeClient";
 export const questInfoToolDefinition = {
   name: "quest_info",
   parameters: z.object({
-    query: z
-      .string()
-      .describe(
-        "The quest name or description to search for in the Tarkov quest database"
-      ),
-    top_k: z
-      .number()
-      .optional()
-      .describe("Optional number of results to return"),
+    query: z.string().describe("The quest name or description to search for"),
+    top_k: z.number().optional().describe("Max results to return"),
   }),
   description:
     "Get information about Escape from Tarkov quests, objectives, and requirements",
@@ -25,34 +18,30 @@ type Args = z.infer<typeof questInfoToolDefinition.parameters>;
 export const questInfo: ToolFn<Args, string> = async ({ toolArgs }) => {
   try {
     const { query, top_k = 3 } = toolArgs;
+    const embedder = new OpenAIEmbeddings();
+    const qVec = await embedder.embedQuery(query);
 
-    const embeddings = new OpenAIEmbeddings();
-    const queryEmbedding = await embeddings.embedQuery(query);
+    const results = await queryEmbeddings(qVec, top_k);
 
-    const results = await queryEmbeddings(queryEmbedding, top_k);
-
-    if (!results || results.length === 0) {
+    if (!results.length) {
       return JSON.stringify({
         status: "not_found",
-        message:
-          "No information found for that quest. Try rephrasing your query.",
+        message: "No matching quests found. Try another phrasing.",
       });
     }
 
-    const formattedResults = results.map((result) => {
-      const { metadata, score } = result;
-      return {
-        questName: metadata?.questName,
-        trader: metadata?.trader,
-        map: metadata?.map,
-        relevance: score ? Math.round(score * 100) : 0,
-        details: metadata?.content,
-      };
-    });
+    const formatted = results.map((r) => ({
+      questName: r.metadata?.questName,
+      questId: r.metadata?.questId,
+      map: r.metadata?.map,
+      trader: r.metadata?.trader,
+      relevance: Math.round((r.score ?? 0) * 100),
+      details: r.metadata?.content,
+    }));
 
-    return JSON.stringify(formattedResults, null, 2);
-  } catch (error) {
-    console.error("Error fetching quest information:", error);
+    return JSON.stringify(formatted, null, 2);
+  } catch (err) {
+    console.error("Error in questInfo tool:", err);
     return JSON.stringify({
       status: "error",
       message: "Failed to retrieve quest information",

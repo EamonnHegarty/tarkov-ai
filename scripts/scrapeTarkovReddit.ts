@@ -117,7 +117,7 @@ async function updateTarkovData() {
   console.log("Fetching new content from r/EscapefromTarkov...");
 
   const newContent = await fetchTarkovContent({
-    pages: 10,
+    pages: 15,
     delayMs: 2000,
     sortBy: "new",
     timeframe: "all",
