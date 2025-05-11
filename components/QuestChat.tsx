@@ -112,21 +112,8 @@ export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
     const lastAssistantMessage =
       assistantMessages[assistantMessages.length - 1];
 
-    const matched =
-      messages.length > 0 && lastAssistantMessage.content.includes("updated")
-        ? ["Placeholder for matched quests"]
-        : [];
-
-    const unmatched =
-      messages.length > 0 &&
-      lastAssistantMessage.content.includes("unrecognized")
-        ? ["Placeholder for unmatched quests"]
-        : [];
-
     return {
       message: lastAssistantMessage.content,
-      matched: matched.length > 0 ? matched : undefined,
-      unmatched: unmatched.length > 0 ? unmatched : undefined,
     };
   };
 

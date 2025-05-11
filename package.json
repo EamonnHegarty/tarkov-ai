@@ -7,10 +7,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "start-llm": "npx tsx ./app/api/ai/index.ts",
-    "scrape-reddit": "tsx scripts/updateTarkovData.ts",
-    "scrape-quests": "tsx scripts/fetchQuestData.ts",
-    "scrape-wiki-quests": "tsx scripts/scrapeWikiQuests.ts"
+    "scrape-reddit": "tsx scripts/scrapeTarkovReddit.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.4",

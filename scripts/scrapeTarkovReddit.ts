@@ -1,9 +1,9 @@
 import { initPineconeIndex, upsertEmbeddings } from "@/lib/pineconeClient";
-import { fetchTarkovContent } from "../lib/reddit";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { createHash } from "crypto";
 import { Pinecone } from "@pinecone-database/pinecone";
 import * as dotenv from "dotenv";
+import { fetchTarkovContent } from "./helper/reddit";
 
 dotenv.config();
 

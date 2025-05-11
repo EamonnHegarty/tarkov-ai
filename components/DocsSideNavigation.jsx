@@ -9,7 +9,7 @@ import {
   Share2,
 } from "lucide-react";
 
-export const SideNavigation = ({ activeSection, setActiveSection }) => {
+export const DocsSideNavigation = ({ activeSection, setActiveSection }) => {
   const NavItem = ({ icon, label, sectionId }) => {
     const isActive = activeSection === sectionId;
 

@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  KAPPA_QUESTS,
-  TRADERS,
-  MAPS,
-  kappaUtils,
-} from "@/lib/data/kappaQuests";
+import { kappaUtils } from "@/lib/data/kappaQuestsHelpers";
 import {
   useGetQuestStatusesQuery,
   useUpdateQuestStatusMutation,
@@ -34,6 +29,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { KAPPA_QUESTS, MAPS, TRADERS } from "@/lib/data/kappaQuestsData";
 
 const KappaPage = () => {
   const [filters, setFilters] = useState({

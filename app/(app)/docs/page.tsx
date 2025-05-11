@@ -1,20 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import { ContentSections } from "./ContentSections";
-import { SideNavigation } from "./SideNavigation";
+import { DocsContentSection } from "../../../components/DocsContentSection";
+import { DocsSideNavigation } from "../../../components/DocsSideNavigation";
 
 export default function DocsPage() {
   const [activeSection, setActiveSection] = useState("overview");
 
   return (
     <div className="flex min-h-screen bg-tarkov">
-      <SideNavigation
+      <DocsSideNavigation
         activeSection={activeSection}
         setActiveSection={setActiveSection}
       />
       <div className="flex-1 py-6 px-4 overflow-y-auto">
-        <ContentSections activeSection={activeSection} />
+        <DocsContentSection activeSection={activeSection} />
       </div>
     </div>
   );

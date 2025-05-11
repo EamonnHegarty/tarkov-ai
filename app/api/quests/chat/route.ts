@@ -2,9 +2,9 @@
 import { getUserByClerkID } from "@/utils/auth";
 import { prisma } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
-
 import { openai } from "@/app/api/ai/ai";
-import { KAPPA_QUESTS, kappaUtils } from "@/lib/data/kappaQuests";
+import { kappaUtils } from "@/lib/data/kappaQuestsHelpers";
+import { KAPPA_QUESTS } from "@/lib/data/kappaQuestsData";
 
 export async function POST(request: NextRequest) {
   try {

@@ -542,7 +542,7 @@ const ApiSection = () => {
   );
 };
 
-export const ContentSections = ({ activeSection }) => {
+export const DocsContentSection = ({ activeSection }) => {
   switch (activeSection) {
     case "overview":
       return <OverviewSection />;
