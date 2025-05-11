@@ -272,7 +272,7 @@ const KappaPage = () => {
             variant="outline"
             size="sm"
             onClick={toggleFilters}
-            className="md:hidden"
+            className="md:hidden "
           >
             <Filter className="h-4 w-4 mr-1" />
             Filters

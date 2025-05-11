@@ -7,6 +7,7 @@ import {
   Code,
   Shield,
   Share2,
+  Target,
 } from "lucide-react";
 
 export const DocsSideNavigation = ({
@@ -69,6 +70,11 @@ export const DocsSideNavigation = ({
           sectionId="analytics"
         />
         <NavItem
+          icon={<Target className="w-5 h-5" />}
+          label="Kappa Quest Tracker"
+          sectionId="kappa"
+        />
+        <NavItem
           icon={<Database className="w-5 h-5" />}
           label="Vector Database"
           sectionId="database"
@@ -80,8 +86,8 @@ export const DocsSideNavigation = ({
         />
         <NavItem
           icon={<Shield className="w-5 h-5" />}
-          label="Authentication"
-          sectionId="auth"
+          label="Admin Management"
+          sectionId="admin"
         />
         <NavItem
           icon={<Share2 className="w-5 h-5" />}

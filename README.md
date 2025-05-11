@@ -1,8 +1,6 @@
-# Tarkov AI Dashboard (Working Title)
+# Tarkov AI Dashboard
 
-This project aims to be a full-stack Next.js application that pulls in data about Escape from Tarkov from multiple sources (e.g., Reddit, Wikis, patch notes, etc.), stores it in a vector database, and then provides both an AI-powered chatbot interface and data visualizations to help players get insights into the game.
-
-This version 1 of the readme serves as a guide for what I want to build and how it will work.
+This project is a full-stack Next.js application that pulls in data about Escape from Tarkov from multiple sources (e.g., Reddit, Wikis), stores it in a vector database, and provides both an AI-powered chatbot interface and data visualizations to help players get insights into the game.
 
 ## Table of Contents
 
@@ -11,8 +9,8 @@ This version 1 of the readme serves as a guide for what I want to build and how 
    - [1. Chatbot powered by AI](#1-chatbot-powered-by-ai)
    - [2. Data Ingestion & Storage](#2-data-ingestion--storage)
    - [3. Visualizations & Analytics](#3-visualizations--analytics)
-   - [4. Quest Flow Tracker](#4-quest-flow-tracker)
-   - [5. Advanced AI Tools](#5-advanced-ai-tools)
+   - [4. Quest Tracking System](#4-quest-tracking-system)
+   - [5. Admin Management](#5-admin-management)
 3. [Tech Stack](#tech-stack)
 4. [Getting Started](#getting-started)
    - [Prerequisites](#prerequisites)
@@ -23,58 +21,58 @@ This version 1 of the readme serves as a guide for what I want to build and how 
    - [AI Processing](#ai-processing)
    - [Visualization Layer](#visualization-layer)
 6. [External APIs](#external-apis)
-7. [Future Ideas](#future-ideas)
-8. [Contributing](#contributing)
-9. [License](#license)
+7. [Contributing](#contributing)
+8. [License](#license)
 
 ---
 
 ## Overview
 
-The main purpose of this app is to demonstrate how AI tooling (particularly LLMs) can be integrated into a typical Next.js web application to provide intelligent features. The project pulls real-time (or periodic) data from various sources—like the /r/EscapefromTarkov subreddit, official patch notes, or user-contributed data—and makes that information queryable through a chatbot UI. We also plan to visualize interesting metrics such as sentiment, quest progression, or post volume over time.
+The main purpose of this app is to demonstrate how AI tooling (particularly LLMs) can be integrated into a Next.js web application to provide intelligent features. The project pulls data from the /r/EscapefromTarkov subreddit and makes that information queryable through a chatbot UI. It also visualizes metrics such as sentiment, quest progression, and post volume over time.
 
 ## Features
 
 ### 1. Chatbot Powered by AI
 
-- **Conversational Q&A:** Users can ask about Tarkov gameplay, items, or patch changes, and the chatbot uses a large language model (e.g., OpenAI GPT) to respond.
-- **Context-Aware:** By storing data in a vector database, the chatbot can reference existing posts, patch notes, and other textual data for more accurate answers.
+- **Conversational Q&A:** Users can ask about Tarkov gameplay, items, or patch changes, and the chatbot uses OpenAI's models to respond.
+- **Context-Aware:** By storing data in a vector database, the chatbot can reference existing posts and other textual data for more accurate answers.
 - **User Engagement:** Encourages user engagement by offering an interactive way to learn about the game.
 
 ### 2. Data Ingestion & Storage
 
-- **Reddit Data:** Automatically pull JSON data from the Tarkov subreddit (e.g., top posts, new posts, etc.).
-- **Patch Notes / Wiki Data:** Integrate official patch note APIs or wiki data to capture changes in the game.
-- **Vector Database:** Store data embeddings in a vector DB (like Pinecone, Weaviate, Chroma, or a local solution) to facilitate semantic search and advanced Q&A.
-- **Scheduled Updates:** Use cron jobs or Next.js API routes to refresh data periodically.
+- **Reddit Data:** Automatically pulls data from the Tarkov subreddit.
+- **Vector Database:** Stores data embeddings in Pinecone to facilitate semantic search and advanced Q&A.
+- **Scheduled Updates:** Uses scripts to refresh data periodically.
 
 ### 3. Visualizations & Analytics
 
-- **Sentiment Analysis:** Track how the subreddit reacts to different patches or events over time (positive vs. negative).
-- **Engagement Over Time:** Show number of posts, comment volume, or upvote trends per patch or date range.
-- **Patch Impact:** Compare timeline of patch releases with spikes in subreddit activity or sentiment swings.
-- **Bugs/Issues Frequency:** Visualize how often certain bugs or issues are mentioned in the data.
+- **Sentiment Analysis:** Track how the subreddit reacts to different patches or events over time.
+- **Engagement Analysis:** Show number of posts, comment volume, or upvote trends.
+- **Interactive Charts:** Bar charts, line charts, pie charts, and scatter plots built with Recharts.
+- **Natural Language Queries:** Ask questions about Tarkov data in plain English.
 
-### 4. Quest Flow Tracker
+### 4. Quest Tracking System
 
-- Upcoming feature!!
-- **User State:** Users can select (or type) which quests they've completed or are currently on, and see what's next.
-- **AI Assistance:** The system can leverage a knowledge base of quests so that if a user types "I completed Tarkov Shooter Pt. 3; what's next?" the AI can provide the next quest steps or important items to keep in your stash.
+- **Kappa Container Tracking:** Monitor progress toward the coveted Kappa secure container.
+- **Quest Management:** Track the status of all quests in the game.
+- **AI-Powered Updates:** Use natural language to update multiple quests at once.
+- **Prerequisite Detection:** Auto-complete prerequisite quests when later quests are marked complete.
+- **Detailed Quest Information:** View quest objectives, locations, and required keys.
 
-### 5. Advanced AI Tools
+### 5. Admin Management
 
-- **Barter Trade Analysis:** Integration with the Tarkov.dev API to analyze profitable barter trades, helping players make informed economic decisions.
-- **Image Generation:** Visual aid generation for maps, weapon configurations, and other in-game elements.
-- **Reddit Data Analysis:** Real-time analysis of posts from the Tarkov subreddit to identify trends, issues, and community sentiment.
-- **AI-Driven Chart Generation:** Dynamic creation of data visualizations based on natural language queries.
+- **User Control:** Monitor and manage user accounts and permissions.
+- **Token Usage:** Set daily limits for AI token usage to control costs.
+- **Analytics Dashboard:** Track system-wide usage patterns.
 
 ## Tech Stack
 
 - **Frontend:** [Next.js](https://nextjs.org), React, TypeScript
-- **AI/LLM Integration:** [OpenAI API](https://platform.openai.com/docs/introduction) or other LLM service
-- **Data Storage:** Vector database Upstash
-- **Visualization:** Chart.js is most likely to be used
-- **Styling:** Tailwind CSS & Chadcn
+- **AI/LLM Integration:** [OpenAI API](https://platform.openai.com/docs/introduction)
+- **Data Storage:** PostgreSQL, Pinecone Vector Database
+- **Authentication:** Clerk
+- **Visualization:** Recharts
+- **Styling:** Tailwind CSS & shadcn/ui
 
 ## Getting Started
 
@@ -82,7 +80,9 @@ The main purpose of this app is to demonstrate how AI tooling (particularly LLMs
 
 - **Node.js** >= 16
 - **npm/yarn/pnpm** (whichever you prefer)
-- **OpenAI API key** (or relevant AI service credentials)
+- **OpenAI API key**
+- **Pinecone API key**
+- **PostgreSQL database**
 
 ### Installation
 
@@ -101,10 +101,14 @@ The main purpose of this app is to demonstrate how AI tooling (particularly LLMs
    ```
 3. **Configure environment variables:**
    - Create a `.env.local` file in the root directory.
-   - Add your OpenAI (or other LLM) API key and any other required keys:
+   - Add required API keys:
      ```bash
+     DATABASE_URL=YOUR_KEY_HERE
      OPENAI_API_KEY=YOUR_KEY_HERE
-     VECTOR_DB_API_KEY=YOUR_KEY_HERE
+     PINECONE_API_KEY=YOUR_KEY_HERE
+     PINECONE_INDEX_NAME=tarkov-data
+     CLERK_SECRET_KEY=YOUR_CLERK_SECRET_KEY
+     CLERK_PUBLISHABLE_KEY=YOUR_CLERK_PUBLISHABLE_KEY
      ```
 
 ### Development
@@ -128,30 +132,31 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 ### Data Pipeline
 
 1. **Data Extraction:**
-   - Pull from subreddit JSON endpoints (e.g., /r/EscapefromTarkov/.json).
-   - Optionally, scrape or fetch official patch notes.
+   - Pull from subreddit endpoints
+   - Process text content into suitable chunks
 2. **Preprocessing & Embeddings:**
-   - Clean up the text (remove duplicates, formatting, etc.).
-   - Generate embeddings using an LLM endpoint.
+   - Clean up the text (remove duplicates, formatting, etc.)
+   - Generate embeddings using OpenAI
 3. **Vector DB Insertion:**
-   - Store the embeddings and metadata in your chosen vector database.
+   - Store the embeddings and metadata in Pinecone
+   - Update regularly to keep data fresh
 
 ### AI Processing
 
 1. **User Query:**
    - A user types a question: "What's the sentiment on the latest wipe?"
 2. **Vector Search:**
-   - The system runs the user query through an embedding model, searches the vector DB for the closest matches, and returns relevant chunks of text.
+   - The system runs the user query through an embedding model, searches the vector DB for the closest matches, and returns relevant text chunks.
 3. **LLM Answer Generation:**
-   - These chunks (e.g., top 5 matches) are combined into a prompt for the LLM.
+   - These chunks are combined into a prompt for the OpenAI model
    - The LLM composes a final, contextually aware answer.
 
 ### Visualization Layer
 
 1. **Analytics Endpoint:**
-   - Next.js API route aggregates data (e.g., daily post volumes, sentiment analysis results) into a format suitable for rendering.
+   - Next.js API route aggregates data into a format suitable for rendering.
 2. **Frontend Rendering:**
-   - Chart.js to visualize the aggregated data on charts, timelines, or heatmaps.
+   - Recharts visualizes the aggregated data on charts, timelines, or pie charts.
 
 ---
 
@@ -159,27 +164,16 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
 This project integrates with several external APIs to enhance functionality:
 
-1. **Tarkov.dev API:** Used for the barter trade analysis tool, providing real-time data on item prices, barter trades, and market values. Special thanks to the [Tarkov.dev](https://tarkov.dev/) team for providing this free and comprehensive API.
+1. **Tarkov.dev API:** Used for barter trade analysis, providing real-time data on item prices and market values.
 
 2. **OpenAI API:** Powers the core AI functionality, including:
 
    - GPT models for conversational AI
-   - DALL-E for image generation
    - Embeddings API for vector storage and retrieval
 
-3. **Reddit API:** Used to gather community discussions and sentiment from the Escape from Tarkov subreddit.
+3. **Reddit Data:** Used to gather community discussions and sentiment from the Escape from Tarkov subreddit.
 
----
-
-## Future Ideas
-
-- **Item Recommendation Engine**
-- **Live Wipe-Related Stats**
-- **Quest Auto-Completion Suggestions**
-- **User-Submitted Data**
-- **Interactive Map Integration**
-- **Loadout Optimizer**
-- **Price Prediction Models**
+4. **Tarkov Wiki:** Used for the kappa page.
 
 ---
 

@@ -7,6 +7,7 @@ import {
   Code,
   Shield,
   Share2,
+  Target,
 } from "lucide-react";
 
 interface SectionTitleProps {
@@ -82,6 +83,7 @@ const OverviewSection: React.FC = () => {
           items={[
             "AI-powered chat system for answering Tarkov-related queries",
             "Data visualization and analytics of Tarkov subreddit content",
+            "Kappa quest tracking system with natural language updates",
             "Vector database for semantic search capabilities",
             "User authentication and token usage tracking",
             "Admin panel for managing user permissions and token limits",
@@ -98,14 +100,20 @@ const OverviewSection: React.FC = () => {
               items={[
                 "Next.js, React, TypeScript",
                 "Tailwind CSS, shadcn/ui",
-                "Recharts",
+                "Recharts for data visualization",
+                "Redux Toolkit for state management",
               ]}
             />
           </div>
           <div>
             <h3 className="font-medium text-text mb-2">Backend</h3>
             <FeatureList
-              items={["Next.js API Routes", "Prisma ORM", "Redux Toolkit"]}
+              items={[
+                "Next.js API Routes",
+                "Prisma ORM",
+                "OpenAI integration",
+                "Clerk Authentication",
+              ]}
             />
           </div>
           <div>
@@ -122,8 +130,8 @@ const OverviewSection: React.FC = () => {
             <FeatureList
               items={[
                 "OpenAI API, LangChain",
-                "Vector embeddings",
-                "Clerk authentication",
+                "Vector embeddings for semantic search",
+                "Token usage tracking and limiting",
               ]}
             />
           </div>
@@ -143,7 +151,7 @@ const ChatSection: React.FC = () => {
 
       <div className="max-w-none mb-8">
         <p className="text-text-secondary">
-          The chat system uses OpenAI&apos;s models to provide contextual and
+          The chat system uses OpenAI&lsquo;s models to provide contextual and
           knowledgeable responses to questions about Escape from Tarkov. The
           system is designed to assist players with game mechanics, strategies,
           quest information, and more.
@@ -174,7 +182,8 @@ const ChatSection: React.FC = () => {
           Chat conversations are stored in a PostgreSQL database using Prisma
           ORM. Each chat has a title and contains a series of messages with
           roles (user/assistant). The application uses Redux Toolkit for state
-          management across components.
+          management across components and includes token usage monitoring to
+          limit API costs.
         </p>
       </SubSection>
     </div>
@@ -235,63 +244,99 @@ const AnalyticsSection: React.FC = () => {
           ]}
         />
       </SubSection>
+
+      <SubSection title="Natural Language Queries">
+        <p className="text-text-secondary">
+          The system allows users to ask questions in plain English about the
+          Tarkov subreddit data. The AI processes these natural language queries
+          and returns both textual analysis and relevant visualizations to help
+          understand community trends, popular topics, and player sentiment.
+        </p>
+        <div className="mt-3 bg-background-2 p-3 rounded-md">
+          <p className="text-text-secondary italic">Example queries:</p>
+          <ul className="mt-2 space-y-1.5">
+            <li className="text-text-secondary text-sm">
+              • &quot;What are the most discussed weapons on the
+              subreddit?&quot;
+            </li>
+            <li className="text-text-secondary text-sm">
+              • &quot;Which maps do players talk about most often?&quot;
+            </li>
+            <li className="text-text-secondary text-sm">
+              • &quot;What issues are players complaining about this
+              month?&quot;
+            </li>
+          </ul>
+        </div>
+      </SubSection>
     </div>
   );
 };
 
-const DatabaseSection: React.FC = () => {
+const KappaSection: React.FC = () => {
   return (
     <div className="bg-ai-chat-message-background border border-[#444444] rounded-lg p-6">
       <SectionTitle
-        icon={<Database className="w-6 h-6" />}
-        title="Vector Database"
+        icon={<Target className="w-6 h-6" />}
+        title="Kappa Quest Tracker"
       />
 
       <div className="max-w-none mb-8">
         <p className="text-text-secondary">
-          The application uses a dual database approach: PostgreSQL for
-          structured data (users, chats, messages) and Pinecone for vector
-          embeddings that enable semantic search capabilities.
+          The Kappa Quest Tracker helps players monitor their progress toward
+          obtaining the Kappa secure container, one of the most challenging
+          achievements in Escape from Tarkov. This system offers comprehensive
+          tracking of all required quests with an innovative natural language
+          interface for updating progress.
         </p>
       </div>
 
-      <SubSection title="PostgreSQL Schema">
+      <SubSection title="Features">
         <FeatureList
           items={[
-            "User: Stores user information, authentication details, and token usage limits",
-            "Chat: Contains chat sessions with titles and user associations",
-            "Message: Stores individual messages within chats, with content and role",
-            "TokenUsage: Tracks daily token consumption for rate limiting",
+            "Quest Progress Tracking: Visually monitor progress toward the Kappa container",
+            "Status Management: Mark quests as not started, in progress, or completed",
+            "Natural Language Updates: Use conversational language to update multiple quests at once",
+            "Automatic Prerequisites: System automatically marks prerequisite quests when a dependent quest is completed",
+            "Filtering and Search: Easily find quests by trader, map, status, or keywords",
+            "Detailed Quest Information: View comprehensive details about objectives, keys, and requirements",
           ]}
         />
       </SubSection>
 
-      <SubSection title="Pinecone Vector DB">
+      <SubSection title="Quest Chat Assistant">
         <p className="text-text-secondary">
-          Pinecone stores vector embeddings generated from Tarkov subreddit
-          content. These embeddings capture the semantic meaning of the text,
-          allowing for similarity-based searches that go beyond simple keyword
-          matching.
+          The Quest Chat Assistant provides a natural language interface for
+          updating quest progress. Users can simply tell the assistant which
+          quests they&apos;ve completed or are working on, and the system will
+          automatically update the appropriate quest statuses.
         </p>
+        <div className="mt-3 bg-background-2 p-3 rounded-md">
+          <p className="text-text-secondary italic">Example inputs:</p>
+          <ul className="mt-2 space-y-1.5">
+            <li className="text-text-secondary text-sm">
+              • &quot;I&apos;ve completed Debut and I&apos;m working on
+              Checking&quot;
+            </li>
+            <li className="text-text-secondary text-sm">
+              • &quot;Just finished all of Prapor&apos;s early quests&quot;
+            </li>
+            <li className="text-text-secondary text-sm">
+              • &quot;I completed Gunsmith Part 10&quot;
+            </li>
+          </ul>
+        </div>
+      </SubSection>
 
-        <h3 className="font-medium text-text mt-4 mb-2">Embedding Process</h3>
-        <ol className="list-decimal space-y-2 pl-5">
-          <li className="text-text-secondary">
-            Text content is processed through OpenAI&apos;s embedding models
-          </li>
-          <li className="text-text-secondary">
-            The resulting high-dimensional vectors (1536 dimensions) capture
-            semantic meaning
-          </li>
-          <li className="text-text-secondary">
-            Vectors are stored in Pinecone along with metadata about the source
-            content
-          </li>
-          <li className="text-text-secondary">
-            Queries are converted to the same vector space to find similar
-            content
-          </li>
-        </ol>
+      <SubSection title="Implementation">
+        <p className="text-text-secondary">
+          The system uses a combination of AI and a comprehensive database of
+          Tarkov quests, including their prerequisites, requirements, and
+          objectives. The quest data is sourced from the Tarkov.dev API and
+          processed to create a structured dependency graph, allowing the system
+          to automatically determine which prerequisite quests must be
+          completed.
+        </p>
       </SubSection>
     </div>
   );
@@ -329,17 +374,17 @@ const ToolsSection: React.FC = () => {
         />
       </SubSection>
 
-      <SubSection title="Image Generation">
+      <SubSection title="Quest Information Tool">
         <p className="text-text-secondary">
-          Using OpenAI&apos;s DALL-E 3 model, the image generation tool allows
-          users to:
+          This specialized tool provides detailed information about Tarkov
+          quests:
         </p>
         <FeatureList
           items={[
-            "Create visual representations of Tarkov maps, locations, and concepts",
-            "Generate custom illustrations for specific game scenarios",
-            "Visualize weapon builds, character loadouts, and tactical setups",
-            "Create reference images for extraction points or loot locations",
+            "Semantic search through the quest database for accurate information",
+            "Detailed quest objectives, locations, and requirements",
+            "Information about prerequisite quests and dependencies",
+            "Required keys and special items needed for completion",
           ]}
         />
       </SubSection>
@@ -362,65 +407,117 @@ const ToolsSection: React.FC = () => {
   );
 };
 
-const AuthSection: React.FC = () => {
+const DatabaseSection: React.FC = () => {
   return (
     <div className="bg-ai-chat-message-background border border-[#444444] rounded-lg p-6">
       <SectionTitle
-        icon={<Shield className="w-6 h-6" />}
-        title="Authentication & User Management"
+        icon={<Database className="w-6 h-6" />}
+        title="Vector Database"
       />
 
       <div className="max-w-none mb-8">
         <p className="text-text-secondary">
-          The application uses Clerk for authentication and implements a custom
-          user management system for tracking token usage and managing access
-          levels.
+          The application uses a dual database approach: PostgreSQL for
+          structured data (users, chats, messages) and Pinecone for vector
+          embeddings that enable semantic search capabilities.
         </p>
       </div>
 
-      <SubSection title="Authentication Flow">
-        <ol className="list-decimal space-y-2 pl-5">
-          <li className="text-text-secondary">
-            Users sign up or sign in through Clerk&apos;s authentication
-            interface
-          </li>
-          <li className="text-text-secondary">
-            On first login, a new user record is created in the PostgreSQL
-            database
-          </li>
-          <li className="text-text-secondary">
-            The Clerk user ID is linked to the internal user record for future
-            reference
-          </li>
-          <li className="text-text-secondary">
-            Protected routes use Clerk middleware to ensure authentication
-          </li>
-        </ol>
-      </SubSection>
-
-      <SubSection title="Token Management">
-        <p className="text-text-secondary">
-          To control API usage costs, the application implements a token limit
-          system:
-        </p>
+      <SubSection title="PostgreSQL Schema">
         <FeatureList
           items={[
-            "Each user has a daily token limit (default 10,000 tokens)",
-            "Token usage is tracked for each API call to OpenAI",
-            "Users can view their remaining tokens through the UI",
-            "When limits are reached, appropriate error messages are displayed",
+            "User: Stores user information, authentication details, and token usage limits",
+            "Chat: Contains chat sessions with titles and user associations",
+            "Message: Stores individual messages within chats, with content and role",
+            "TokenUsage: Tracks daily token consumption for rate limiting",
+            "UserQuestStatus: Tracks the completion status of quests for each user",
           ]}
         />
       </SubSection>
 
-      <SubSection title="Admin Panel">
+      <SubSection title="Pinecone Vector DB">
+        <p className="text-text-secondary">
+          Pinecone stores vector embeddings generated from Tarkov subreddit
+          content. These embeddings capture the semantic meaning of the text,
+          allowing for similarity-based searches that go beyond simple keyword
+          matching.
+        </p>
+
+        <h3 className="font-medium text-text mt-4 mb-2">Embedding Process</h3>
+        <ol className="list-decimal space-y-2 pl-5">
+          <li className="text-text-secondary">
+            Text content is processed through OpenAI&apos;s embedding models
+          </li>
+          <li className="text-text-secondary">
+            The resulting high-dimensional vectors (1536 dimensions) capture
+            semantic meaning
+          </li>
+          <li className="text-text-secondary">
+            Vectors are stored in Pinecone along with metadata about the source
+            content
+          </li>
+          <li className="text-text-secondary">
+            Queries are converted to the same vector space to find similar
+            content
+          </li>
+        </ol>
+      </SubSection>
+    </div>
+  );
+};
+
+const AdminSection: React.FC = () => {
+  return (
+    <div className="bg-ai-chat-message-background border border-[#444444] rounded-lg p-6">
+      <SectionTitle
+        icon={<Shield className="w-6 h-6" />}
+        title="Admin Management"
+      />
+
+      <div className="max-w-none mb-8">
+        <p className="text-text-secondary">
+          The application includes a comprehensive admin panel for managing
+          users, monitoring system usage, and controlling access to features.
+          This helps maintain system performance and control API usage costs.
+        </p>
+      </div>
+
+      <SubSection title="User Management">
         <FeatureList
           items={[
-            "Protected Route",
-            "View all users and their token usage statistics",
-            "Adjust individual user's daily token limits",
-            "Mark users as 'trusted' to grant them additional privileges",
-            "Monitor system-wide token consumption",
+            "View all registered users and their information",
+            "Monitor individual token usage and consumption patterns",
+            "Filter and search for specific users",
+            "Set trusted user status for select accounts",
+          ]}
+        />
+      </SubSection>
+
+      <SubSection title="Token Limit Controls">
+        <p className="text-text-secondary">
+          To manage API costs effectively, the admin panel provides tools to:
+        </p>
+        <FeatureList
+          items={[
+            "Set custom daily token limits for individual users",
+            "View overall token consumption across the entire system",
+            "Identify high-usage accounts that may need attention",
+            "Monitor remaining token allowance for all users",
+          ]}
+        />
+      </SubSection>
+
+      <SubSection title="Usage Statistics">
+        <p className="text-text-secondary">
+          The admin dashboard provides valuable insights into system usage
+          patterns:
+        </p>
+        <FeatureList
+          items={[
+            "Total tokens used system-wide on a daily basis",
+            "Average token consumption per user",
+            "Percentage of daily limits being utilized",
+            "Visual indicators for users approaching their limits",
           ]}
         />
       </SubSection>
@@ -552,6 +649,83 @@ const ApiSection: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <div>
+          <h2 className="text-xl font-semibold text-tarkov-secondary mb-4">
+            Quest API
+          </h2>
+
+          <div className="space-y-6">
+            <div className="border border-[#444444] rounded-md overflow-hidden">
+              <div className="bg-background-2 px-4 py-2 border-b border-[#444444]">
+                <div className="flex items-center">
+                  <span className="text-tarkov-secondary font-mono text-sm mr-2">
+                    GET
+                  </span>
+                  <span className="font-medium text-text">
+                    /api/quests/status
+                  </span>
+                </div>
+              </div>
+              <div className="p-4">
+                <p className="text-text-secondary mb-4">
+                  Retrieves the status of all quests for the authenticated user.
+                </p>
+              </div>
+            </div>
+
+            <div className="border border-[#444444] rounded-md overflow-hidden">
+              <div className="bg-background-2 px-4 py-2 border-b border-[#444444]">
+                <div className="flex items-center">
+                  <span className="text-tarkov-secondary font-mono text-sm mr-2">
+                    PUT
+                  </span>
+                  <span className="font-medium text-text">
+                    /api/quests/status
+                  </span>
+                </div>
+              </div>
+              <div className="p-4">
+                <p className="text-text-secondary mb-4">
+                  Updates the status of a specific quest for the authenticated
+                  user.
+                </p>
+                <h4 className="font-medium text-text mb-2">Request Body</h4>
+                <pre className="bg-background-2 p-3 rounded-md text-sm overflow-x-auto text-text-secondary">
+                  {`{
+  "questId": "string",
+  "status": "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED"
+}`}
+                </pre>
+              </div>
+            </div>
+
+            <div className="border border-[#444444] rounded-md overflow-hidden">
+              <div className="bg-background-2 px-4 py-2 border-b border-[#444444]">
+                <div className="flex items-center">
+                  <span className="text-tarkov-secondary font-mono text-sm mr-2">
+                    POST
+                  </span>
+                  <span className="font-medium text-text">
+                    /api/quests/chat
+                  </span>
+                </div>
+              </div>
+              <div className="p-4">
+                <p className="text-text-secondary mb-4">
+                  Processes natural language descriptions of quest progress and
+                  updates quest statuses accordingly.
+                </p>
+                <h4 className="font-medium text-text mb-2">Request Body</h4>
+                <pre className="bg-background-2 p-3 rounded-md text-sm overflow-x-auto text-text-secondary">
+                  {`{
+  "message": "string"
+}`}
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -571,12 +745,14 @@ export const DocsContentSection: React.FC<DocsContentSectionProps> = ({
       return <ChatSection />;
     case "analytics":
       return <AnalyticsSection />;
+    case "kappa":
+      return <KappaSection />;
     case "database":
       return <DatabaseSection />;
     case "tools":
       return <ToolsSection />;
-    case "auth":
-      return <AuthSection />;
+    case "admin":
+      return <AdminSection />;
     case "api":
       return <ApiSection />;
     default:
