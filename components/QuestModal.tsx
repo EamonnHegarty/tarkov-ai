@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import {
   Info,
   Award,
@@ -19,6 +20,8 @@ import {
   Layers,
   CheckCircle,
   Clock,
+  ExternalLink,
+  BookOpen,
 } from "lucide-react";
 
 export interface QuestDetails {
@@ -70,6 +73,16 @@ const getObjectiveIcon = (type: string): React.ReactNode => {
   return iconMap[type] || <Info size={16} />;
 };
 
+const generateWikiUrl = (questName: string): string => {
+  const formattedName = questName
+    .replace(/\s+/g, "_")
+    .replace(/['']/g, "'")
+    .replace(/[""]/g, '"')
+    .trim();
+
+  return `https://escapefromtarkov.fandom.com/wiki/${formattedName}`;
+};
+
 export const QuestModal: React.FC<QuestModalProps> = ({
   isOpen,
   onClose,
@@ -77,9 +90,10 @@ export const QuestModal: React.FC<QuestModalProps> = ({
 }) => {
   if (!quest) return null;
 
+  const wikiUrl = generateWikiUrl(quest.name);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      {/* <DialogOverlay className="bg-black/80 backdrop-blur-sm" /> */}
       <DialogContent
         className="bg-background-2 border-[#444444] text-text max-w-[80vw] md:max-w-4xl p-0 overflow-hidden"
         style={{ width: "min(90vw, 900px)" }}
@@ -108,9 +122,23 @@ export const QuestModal: React.FC<QuestModalProps> = ({
               )}
             </div>
           </DialogHeader>
+
+          <div className="mt-3">
+            <Button
+              onClick={() =>
+                window.open(wikiUrl, "_blank", "noopener,noreferrer")
+              }
+              className="bg-[#2a2a2a] hover:bg-[#383838] text-tarkov-secondary border border-tarkov-secondary/30 hover:border-tarkov-secondary/50 transition-all duration-200"
+              size="sm"
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              View on Tarkov Wiki
+              <ExternalLink className="h-3 w-3 ml-2" />
+            </Button>
+          </div>
         </div>
 
-        <ScrollArea className="max-h-[80vh]">
+        <ScrollArea className="max-h-[60vh]">
           <div className="p-4 space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {quest.experience && (
