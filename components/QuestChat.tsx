@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { TokenUsageMeter } from "@/components/TokensUsageDashboard";
+import { useGetTokenUsageQuery } from "@/lib/store/services/userApi";
 
 interface QuestChatProps {
   onQuestUpdates?: () => void;
@@ -29,6 +31,8 @@ type ResponseData = {
   matched?: string[];
   unmatched?: string[];
   autoCompleted?: string[];
+  tokensUsed?: number;
+  tokensRemaining?: number;
 };
 
 export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
@@ -36,6 +40,12 @@ export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [processChatMessage, { isLoading }] = useProcessChatMessageMutation();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [lastTokenUsage, setLastTokenUsage] = useState<{
+    used: number;
+    remaining: number;
+  } | null>(null);
+
+  const { data: tokenUsageData } = useGetTokenUsageQuery();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -57,6 +67,13 @@ export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
       const result = await processChatMessage({
         message: userMessage.content,
       }).unwrap();
+
+      if (result.tokensUsed && result.tokensRemaining) {
+        setLastTokenUsage({
+          used: result.tokensUsed,
+          remaining: result.tokensRemaining,
+        });
+      }
 
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
@@ -200,6 +217,18 @@ export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
           </Button>
         )}
       </div>
+
+      {tokenUsageData && (
+        <div className="mb-4">
+          <TokenUsageMeter
+            tokensUsed={tokenUsageData.tokensUsed}
+            tokensRemaining={tokenUsageData.tokensRemaining}
+            tokenLimit={tokenUsageData.tokenLimit}
+            defaultCollapsed={true}
+          />
+        </div>
+      )}
+
       {isExpanded && messages.length > 0 && (
         <ScrollArea className="h-52 mb-4 pr-4" ref={scrollAreaRef}>
           <div className="space-y-4">
@@ -245,6 +274,13 @@ export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
           <p className="text-text">{latestResponse.message}</p>
         </div>
       )}
+
+      {lastTokenUsage && (
+        <div className="mb-3 text-xs text-text-secondary">
+          <p>Last request: {lastTokenUsage.used} tokens used</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="relative">
           <Textarea
@@ -252,7 +288,7 @@ export const QuestChat: React.FC<QuestChatProps> = ({ onQuestUpdates }) => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Tell me which quests you've completed or are working on. If a quest has pre requisites like I completed gunsmith 10 therefore 1-10 should be completed we will try auto mark these"
+            placeholder="Tell me which quests you've completed or are working on. If a quest has prerequisites, like completing Gunsmith 1-9 before Gunsmith 10, we'll automatically mark them."
             className="min-h-[60px] pr-12 bg-background-2 border-[#444] text-text resize-none"
           />
           <Button

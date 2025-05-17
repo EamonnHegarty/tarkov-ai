@@ -15,6 +15,8 @@ export interface ChatUpdateRequest {
 }
 
 export interface ChatUpdateResponse {
+  tokensRemaining: number;
+  tokensUsed: number;
   message: string;
   updates: QuestStatusUpdate[];
   matched: string[];

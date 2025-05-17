@@ -5,7 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { openai } from "@/app/api/ai/ai";
 import { kappaUtils } from "@/lib/data/kappaQuestsHelpers";
 import { KAPPA_QUESTS } from "@/lib/data/kappaQuestsData";
-import { checkTokenLimit } from "@/middleware/tokenLimits";
+import {
+  checkTokenLimit,
+  estimateTokens,
+  updateTokenUsage,
+} from "@/middleware/tokenLimits";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +23,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { canProceed, remaining } = await checkTokenLimit(request);
+    const estimatedTokenUsage = estimateTokens(message) * 3;
+
+    const { canProceed, remaining } = await checkTokenLimit(
+      request,
+      estimatedTokenUsage
+    );
 
     if (!canProceed) {
       return NextResponse.json(
@@ -27,7 +36,7 @@ export async function POST(request: NextRequest) {
           error: "Daily token limit exceeded",
           remaining,
           message:
-            "You've reached your daily usage limit. Please try again tomorrow. You can still manually mark of quests",
+            "You've reached your daily usage limit. Please try again tomorrow. You can still manually mark off quests",
         },
         { status: 429 }
       );
@@ -58,12 +67,22 @@ ${KAPPA_QUESTS.map((q: { name: any }) => q.name).join(", ")}
       response_format: { type: "json_object" },
     });
 
+    const promptTokens = estimateTokens(message);
+    const responseTokens = estimateTokens(
+      response.choices[0].message.content || ""
+    );
+    const totalTokensUsed = promptTokens + responseTokens;
+
+    await updateTokenUsage(user.id, totalTokensUsed);
+
     const content = response.choices[0].message.content;
     if (!content) {
       return NextResponse.json({
         message:
           "I couldn't identify any quests in your message. Try mentioning specific quest names.",
         updates: [],
+        tokensUsed: totalTokensUsed,
+        tokensRemaining: remaining - totalTokensUsed,
       });
     }
 
@@ -76,6 +95,8 @@ ${KAPPA_QUESTS.map((q: { name: any }) => q.name).join(", ")}
         message:
           "I had trouble understanding the quest information. Please try again with clearer quest names.",
         updates: [],
+        tokensUsed: totalTokensUsed,
+        tokensRemaining: remaining - totalTokensUsed,
       });
     }
 
@@ -85,6 +106,8 @@ ${KAPPA_QUESTS.map((q: { name: any }) => q.name).join(", ")}
         message:
           "I couldn't identify any specific quests in your message. Please mention quest names more explicitly.",
         updates: [],
+        tokensUsed: totalTokensUsed,
+        tokensRemaining: remaining - totalTokensUsed,
       });
     }
 
@@ -250,6 +273,8 @@ ${KAPPA_QUESTS.map((q: { name: any }) => q.name).join(", ")}
       matched: matchedQuestNames,
       unmatched: unmatchedQuestNames,
       autoCompleted: autoCompletedQuests,
+      tokensUsed: totalTokensUsed,
+      tokensRemaining: remaining - totalTokensUsed,
     });
   } catch (error) {
     console.error("Error processing chat message:", error);
