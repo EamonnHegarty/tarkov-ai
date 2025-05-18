@@ -26,6 +26,8 @@ import {
   UserCheck,
   UserX,
   Users,
+  ArrowDown,
+  ArrowUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -38,6 +40,8 @@ export default function AdminPage() {
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [newLimit, setNewLimit] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortBy, setSortBy] = useState<string>("tokensUsedToday");
 
   const { data, isLoading, error } = useGetAllUsersQuery();
   const [updateTokenLimit] = useUpdateTokenLimitMutation();
@@ -77,10 +81,50 @@ export default function AdminPage() {
     }
   };
 
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      // Toggle sort order if clicking the same column
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      // Set new sort column and default to descending order
+      setSortBy(column);
+      setSortOrder("desc");
+    }
+  };
+
+  const getSortIcon = (column: string) => {
+    if (sortBy !== column) return null;
+    return sortOrder === "asc" ? (
+      <ArrowUp className="h-4 w-4 ml-1" />
+    ) : (
+      <ArrowDown className="h-4 w-4 ml-1" />
+    );
+  };
+
   const users = data?.users || [];
   const filteredUsers = users.filter((user) =>
     user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Sort users based on current sort column and order
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    const multiplier = sortOrder === "asc" ? 1 : -1;
+
+    switch (sortBy) {
+      case "tokensUsedToday":
+        return multiplier * (a.tokensUsedToday - b.tokensUsedToday);
+      case "dailyTokenLimit":
+        return multiplier * (a.dailyTokenLimit - b.dailyTokenLimit);
+      case "email":
+        return multiplier * a.email.localeCompare(b.email);
+      case "usagePercent":
+        const percentA = (a.tokensUsedToday / a.dailyTokenLimit) * 100;
+        const percentB = (b.tokensUsedToday / b.dailyTokenLimit) * 100;
+        return multiplier * (percentA - percentB);
+      default:
+        return 0;
+    }
+  });
 
   if (isLoading) {
     return (
@@ -269,16 +313,47 @@ export default function AdminPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Daily Limit</TableHead>
-                    <TableHead>Today&apos;s Usage</TableHead>
-                    <TableHead>Usage %</TableHead>
+                    <TableHead
+                      onClick={() => handleSort("email")}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center">
+                        Email
+                        {getSortIcon("email")}
+                      </div>
+                    </TableHead>
+                    <TableHead
+                      onClick={() => handleSort("dailyTokenLimit")}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center">
+                        Daily Limit
+                        {getSortIcon("dailyTokenLimit")}
+                      </div>
+                    </TableHead>
+                    <TableHead
+                      onClick={() => handleSort("tokensUsedToday")}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center">
+                        Today&apos;s Usage
+                        {getSortIcon("tokensUsedToday")}
+                      </div>
+                    </TableHead>
+                    <TableHead
+                      onClick={() => handleSort("usagePercent")}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center">
+                        Usage %{getSortIcon("usagePercent")}
+                      </div>
+                    </TableHead>
                     <TableHead>Trusted</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredUsers.map((user) => {
+                  {sortedUsers.map((user) => {
                     const usagePercent = Math.round(
                       (user.tokensUsedToday / user.dailyTokenLimit) * 100
                     );
