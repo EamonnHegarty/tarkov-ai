@@ -83,10 +83,8 @@ export default function AdminPage() {
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
-      // Toggle sort order if clicking the same column
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      // Set new sort column and default to descending order
       setSortBy(column);
       setSortOrder("desc");
     }
@@ -106,7 +104,6 @@ export default function AdminPage() {
     user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Sort users based on current sort column and order
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     const multiplier = sortOrder === "asc" ? 1 : -1;
 
